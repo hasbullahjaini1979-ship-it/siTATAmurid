@@ -866,29 +866,26 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 
       <!-- Right Col -->
       <div>
-        <!-- Aktivitas Terbaru -->
-        <div class="section">
-          <div class="section-header">
-            <div class="section-title">📌 Aktivitas Terbaru</div>
-            <span class="badge badge-blue" id="totalLogBadge">0 log</span>
+        <!-- Ranking Sliding Per Kelas -->
+        <div class="section" style="overflow:hidden;">
+          <div class="section-header" style="margin-bottom:0.8rem;">
+            <div>
+              <div class="section-title">🏆 Top 5 Ranking Per Kelas</div>
+              <div class="section-sub" id="rankSlideSubtitle">Geser otomatis setiap kelas</div>
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <button class="btn btn-outline btn-sm" id="rankPrevBtn" onclick="rankSlide(-1)">‹</button>
+              <span id="rankSlideIndicator" style="font-size:0.78rem; color:var(--text3); min-width:60px; text-align:center;">-</span>
+              <button class="btn btn-outline btn-sm" id="rankNextBtn" onclick="rankSlide(1)">›</button>
+              <button class="btn btn-outline btn-sm" onclick="showPage('piket'); switchPiketTab('ranking')">Semua →</button>
+            </div>
           </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Tanggal</th><th>Tipe</th><th>Siswa</th><th>Keterangan</th><th>Poin</th></tr></thead>
-              <tbody id="recentLogBody">
-                <tr><td colspan="5" class="empty-state"><div class="es-icon">📋</div><div class="es-text">Belum ada aktivitas</div></td></tr>
-              </tbody>
-            </table>
+          <!-- Kelas Tabs Dots -->
+          <div id="rankDots" style="display:flex; gap:6px; margin-bottom:1rem; flex-wrap:wrap;"></div>
+          <!-- Slider Track -->
+          <div style="overflow:hidden; border-radius:12px;">
+            <div id="rankSliderTrack" style="display:flex; transition:transform 0.45s cubic-bezier(.4,0,.2,1);"></div>
           </div>
-        </div>
-
-        <!-- Ranking Singkat -->
-        <div class="section">
-          <div class="section-header">
-            <div class="section-title">🏆 Top Ranking Siswa</div>
-            <button class="btn btn-outline btn-sm" onclick="showPage('piket'); switchPiketTab('ranking')">Lihat Semua →</button>
-          </div>
-          <div id="topRankingDiv"></div>
         </div>
       </div>
     </div>
@@ -1378,6 +1375,26 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 
     <!-- Tab: Logs -->
     <div class="tab-pane" id="admin-logs">
+      <!-- Aktivitas Terbaru (dipindah dari Dashboard) -->
+      <div class="section" style="margin-bottom:1.2rem;">
+        <div class="section-header">
+          <div>
+            <div class="section-title">📌 Aktivitas Terbaru</div>
+            <div class="section-sub">20 log terakhir</div>
+          </div>
+          <span class="badge badge-blue" id="totalLogBadge">0 log</span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Tanggal</th><th>Tipe</th><th>Siswa</th><th>Keterangan</th><th>Poin</th></tr></thead>
+            <tbody id="recentLogBody">
+              <tr><td colspan="5" style="text-align:center; color:var(--text3); padding:2rem;">Belum ada aktivitas</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Semua Log -->
       <div class="section">
         <div class="section-header">
           <div class="section-title">📋 Semua Log Aktivitas</div>
@@ -1405,6 +1422,7 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
           </table>
         </div>
       </div>
+      <!-- end semua log section -->
     </div>
   </div>
 </div>
@@ -1579,7 +1597,7 @@ function loadUIFromDB() {
   document.getElementById('statKelas').textContent = DB.kelas.length;
   document.getElementById('statPelanggaran').textContent = DB.logs.filter(l=>l.tipe==='Pelanggaran').length;
   document.getElementById('statPenghargaan').textContent = DB.logs.filter(l=>l.tipe==='Penghargaan').length;
-  document.getElementById('totalLogBadge').textContent = DB.logs.length + ' log';
+  const tlb = document.getElementById('totalLogBadge'); if(tlb) tlb.textContent = DB.logs.length + ' log';
 
   renderPiketHariIni();
   renderKelasGrid();
@@ -1668,30 +1686,127 @@ function renderRecentLogs() {
     </tr>`).join('');
 }
 
-function renderTopRanking() {
-  const div = document.getElementById('topRankingDiv');
-  const ranked = DB.siswa.map(s => ({
-    ...s,
-    total: DB.logs.filter(l=>l.nis===s.nis).reduce((a,b)=>a+(Number(b.poin)||0),0)
-  })).sort((a,b)=>b.total-a.total).slice(0,5);
+// ============================================================
+// RANKING SLIDER PER KELAS
+// ============================================================
+let rankSlideIndex = 0;
+let rankSlideTimer = null;
+let rankSlideData = []; // [{kelas, students:[]}]
 
-  if (ranked.length === 0) {
-    div.innerHTML = '<div class="empty-state"><div class="es-icon">🏆</div><div class="es-text">Belum ada data</div></div>';
+function buildRankSlideData() {
+  // Group by kelas, top 5 per kelas
+  const kelasOrder = DB.kelas.length > 0 ? DB.kelas.map(k => k.nama) : [...new Set(DB.siswa.map(s => s.kelas))];
+  rankSlideData = kelasOrder.map(kelas => {
+    const students = DB.siswa
+      .filter(s => s.kelas === kelas)
+      .map(s => ({
+        ...s,
+        total: DB.logs.filter(l => l.nis === s.nis).reduce((a, b) => a + (Number(b.poin) || 0), 0)
+      }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+    return { kelas, students };
+  }).filter(g => g.students.length > 0);
+  return rankSlideData;
+}
+
+function buildStudentRow(s, i, topTotal) {
+  var medals = ['🥇','🥈','🥉'];
+  var medal = i < 3 ? medals[i] : '<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#e8edf4;font-size:0.72rem;font-weight:800;color:#718096;">' + (i+1) + '</span>';
+  var barW = topTotal !== 0 ? Math.max(8, Math.round(Math.abs(s.total) / Math.max(Math.abs(topTotal), 1) * 100)) : 0;
+  var isPos = s.total >= 0;
+  var color = isPos ? 'var(--blue)' : 'var(--red)';
+  var barColor = isPos ? 'var(--green)' : 'var(--red)';
+  var sign = isPos ? '+' : '';
+  return '<div class="rank-card" style="cursor:pointer;margin-bottom:0.5rem;" onclick="showSiswaDetail(\'' + s.nis + '\')">'
+    + '<div style="font-size:1.3rem;flex-shrink:0;width:28px;text-align:center;">' + medal + '</div>'
+    + '<div class="rank-info" style="flex:1;overflow:hidden;">'
+    + '<div class="rank-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + s.nama + '</div>'
+    + '<div style="background:#e8edf4;border-radius:4px;height:5px;margin-top:5px;overflow:hidden;">'
+    + '<div style="height:100%;width:' + barW + '%;background:' + barColor + ';border-radius:4px;"></div>'
+    + '</div></div>'
+    + '<div class="rank-pts">'
+    + '<div class="rank-total" style="color:' + color + ';">' + sign + s.total + '</div>'
+    + '<div class="rank-detail">poin</div>'
+    + '</div></div>';
+}
+
+function renderTopRanking() {
+  buildRankSlideData();
+  const track = document.getElementById('rankSliderTrack');
+  const dots = document.getElementById('rankDots');
+  if (!track || !dots) return;
+
+  if (rankSlideData.length === 0) {
+    track.innerHTML = `<div style="padding:3rem; text-align:center; color:var(--text3); width:100%;">
+      <div style="font-size:2.5rem;">🏆</div><div style="font-size:0.88rem; margin-top:0.5rem;">Belum ada data ranking</div></div>`;
+    dots.innerHTML = '';
     return;
   }
-  div.innerHTML = ranked.map((s,i) => `
-    <div class="rank-card">
-      <div class="rank-num ${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-n'}">${i+1}</div>
-      <div class="rank-info">
-        <div class="rank-name">${s.nama}</div>
-        <div class="rank-kelas">${s.kelas}</div>
-      </div>
-      <div class="rank-pts">
-        <div class="rank-total">${s.total}</div>
-        <div class="rank-detail">poin</div>
-      </div>
-    </div>`).join('');
+
+  // Build slides
+  track.innerHTML = rankSlideData.map(function(group) {
+    var topTotal = group.students.length > 0 ? group.students[0].total : 0;
+    var rows = group.students.map(function(s, i) { return buildStudentRow(s, i, topTotal); }).join('');
+    return '<div class="rank-slide" style="min-width:100%;width:100%;flex-shrink:0;box-sizing:border-box;">'
+      + '<div style="background:linear-gradient(135deg,#0a1628,#1a3060);border-radius:12px;padding:0.8rem 1rem;margin-bottom:0.8rem;display:flex;align-items:center;justify-content:space-between;">'
+      + '<div style="color:white;font-family:Sora,sans-serif;font-weight:800;font-size:0.95rem;">🏫 ' + group.kelas + '</div>'
+      + '<div style="color:rgba(255,255,255,0.6);font-size:0.72rem;">Top ' + group.students.length + ' Siswa</div>'
+      + '</div>' + rows + '</div>';
+  }).join('');
+
+  // Dots
+  dots.innerHTML = rankSlideData.map((g, i) => `
+    <button onclick="rankGoTo(${i})" title="${g.kelas}" style="padding:0; background:none; border:none; cursor:pointer;">
+      <div class="rank-dot ${i === 0 ? 'active' : ''}" id="rankdot_${i}" style="
+        height:8px; border-radius:4px; transition:all 0.3s; background:var(--border);
+        width:${i === 0 ? '28px' : '8px'};"></div>
+    </button>`).join('');
+
+  rankSlideIndex = 0;
+  updateRankSlide();
+  clearInterval(rankSlideTimer);
+  if (rankSlideData.length > 1) {
+    rankSlideTimer = setInterval(() => rankSlide(1), 4000);
+  }
 }
+
+function updateRankSlide() {
+  const track = document.getElementById('rankSliderTrack');
+  if (track) track.style.transform = `translateX(-${rankSlideIndex * 100}%)`;
+  // Update dots
+  rankSlideData.forEach((_, i) => {
+    const dot = document.getElementById('rankdot_' + i);
+    if (dot) {
+      dot.style.background = i === rankSlideIndex ? 'var(--blue)' : 'var(--border)';
+      dot.style.width = i === rankSlideIndex ? '28px' : '8px';
+    }
+  });
+  // Update subtitle
+  const sub = document.getElementById('rankSlideSubtitle');
+  if (sub && rankSlideData[rankSlideIndex]) sub.textContent = '📊 ' + rankSlideData[rankSlideIndex].kelas;
+  // Indicator
+  const ind = document.getElementById('rankSlideIndicator');
+  if (ind && rankSlideData.length > 0) ind.textContent = `${rankSlideIndex + 1} / ${rankSlideData.length}`;
+}
+
+function rankSlide(dir) {
+  if (rankSlideData.length === 0) return;
+  rankSlideIndex = (rankSlideIndex + dir + rankSlideData.length) % rankSlideData.length;
+  updateRankSlide();
+  // Restart auto-timer
+  clearInterval(rankSlideTimer);
+  if (rankSlideData.length > 1) rankSlideTimer = setInterval(() => rankSlide(1), 4000);
+}
+
+function rankGoTo(i) {
+  rankSlideIndex = i;
+  updateRankSlide();
+  clearInterval(rankSlideTimer);
+  if (rankSlideData.length > 1) rankSlideTimer = setInterval(() => rankSlide(1), 4000);
+}
+
+
 
 function renderRanking() {
   const kFilter = document.getElementById('rankKelasFilter')?.value || '';
@@ -1874,6 +1989,22 @@ function renderAdminLogs() {
 // ============================================================
 const pelState = { step: 1, kelas: '', siswaIdx: '', itemIdx: '', kategori: '' };
 const pghState = { step: 1, kelas: '', siswaIdx: '', itemIdx: '', kategori: '' };
+
+// Touch swipe for ranking slider
+(function() {
+  let tx = 0;
+  document.addEventListener('touchstart', e => {
+    const track = document.getElementById('rankSliderTrack');
+    if (track && track.contains(e.target)) tx = e.touches[0].clientX;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const track = document.getElementById('rankSliderTrack');
+    if (track && track.contains(e.target)) {
+      const dx = e.changedTouches[0].clientX - tx;
+      if (Math.abs(dx) > 40) rankSlide(dx < 0 ? 1 : -1);
+    }
+  }, { passive: true });
+})();
 
 function setMobileNav(page) {
   document.querySelectorAll('.mnav-btn').forEach(b => b.classList.remove('active'));
@@ -2798,7 +2929,7 @@ function switchAdminTab(tab) {
   });
   document.querySelectorAll('#page-admin .tab-pane').forEach(p=>p.classList.remove('active'));
   document.getElementById('admin-'+tab)?.classList.add('active');
-  if (tab === 'logs') renderAdminLogs();
+  if (tab === 'logs') { renderAdminLogs(); renderRecentLogs(); }
 }
 
 // ============================================================
