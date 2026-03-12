@@ -1041,7 +1041,7 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 // ============================================================
 // KONFIGURASI — GANTI GS_URL DENGAN URL APPS SCRIPT ANDA
 // ============================================================
-const GS_URL = "https://script.google.com/macros/s/GANTI_DENGAN_URL_APPS_SCRIPT_ANDA/exec";
+const GS_URL = "https://script.google.com/macros/s/AKfycbyFwebI-MmuoVRo30mOCBUe1ZSSJfKz1aw_0AX4IAqUz-CnhEx-ftLBxDw_9aOnwT6XZw/exec";
 
 // ============================================================
 // DATA STORE (sinkron dari GSheets)
@@ -1095,54 +1095,82 @@ function saveLocal() {
 
 // ============================================================
 // GOOGLE SHEETS SYNC
+// Menggunakan fetch() langsung — GAS sudah support CORS
+// untuk deployment "Anyone can access"
 // ============================================================
 async function syncAll() {
   setSyncStatus('loading', 'Menghubungkan ke Google Sheets...');
   const url = DB.gs_url || GS_URL;
-  if (!url || url.includes('GANTI_DENGAN')) {
-    setSyncStatus('error', 'GS URL belum dikonfigurasi — data dari localStorage');
+  if (!url || url.trim() === '') {
+    setSyncStatus('error', 'GS URL belum dikonfigurasi');
     loadUIFromDB();
     return;
   }
   showLoading('Mengambil data dari Google Sheets...');
   try {
-    const res = await fetch(url + '?action=getAll', { method: 'GET' });
-    const json = await res.json();
-    if (json.status === 'ok') {
-      if (json.sekolah) DB.sekolah = json.sekolah;
-      if (json.guru) DB.guru = json.guru;
-      if (json.kelas) DB.kelas = json.kelas;
-      if (json.siswa) DB.siswa = json.siswa;
-      if (json.pelanggaran) DB.pelanggaran = json.pelanggaran;
-      if (json.penghargaan) DB.penghargaan = json.penghargaan;
-      if (json.logs) DB.logs = json.logs;
+    const res = await fetch(url + '?action=getAll', {
+      method: 'GET',
+      redirect: 'follow'
+    });
+    const text = await res.text();
+    const json = JSON.parse(text);
+    if (json && json.status === 'ok') {
+      if (json.sekolah && Object.keys(json.sekolah).length > 0) DB.sekolah = json.sekolah;
+      if (json.guru        && json.guru.length)        DB.guru        = json.guru;
+      if (json.kelas       && json.kelas.length)       DB.kelas       = json.kelas;
+      if (json.siswa       && json.siswa.length)       DB.siswa       = json.siswa;
+      if (json.pelanggaran && json.pelanggaran.length) DB.pelanggaran = json.pelanggaran;
+      if (json.penghargaan && json.penghargaan.length) DB.penghargaan = json.penghargaan;
+      if (json.logs        && json.logs.length)        DB.logs        = json.logs;
       saveLocal();
       gsConnected = true;
-      setSyncStatus('ok', 'Terhubung ke Google Sheets');
-      toast('✅ Data berhasil disinkronkan dari Google Sheets', 'success');
+      setSyncStatus('ok', 'Terhubung ke Google Sheets ✓');
+      toast('✅ Data berhasil disinkronkan', 'success');
     } else {
-      setSyncStatus('error', 'Gagal mengambil data: ' + (json.message||''));
-      toast('⚠️ Gagal sinkron: ' + (json.message||'Error'), 'error');
+      setSyncStatus('error', 'GS: ' + (json && json.message ? json.message : 'Respons tidak valid'));
+      toast('⚠️ GS merespons tapi data tidak valid', 'error');
     }
   } catch(e) {
-    setSyncStatus('error', 'Koneksi gagal — menggunakan data lokal');
+    setSyncStatus('error', 'Gagal terhubung: ' + e.message);
+    toast('⚠️ Koneksi GS gagal: ' + e.message, 'error');
   }
   hideLoading();
   loadUIFromDB();
 }
 
+// Kirim data ke GAS via GET dengan payload JSON di query string
+// GAS tidak butuh POST — semua bisa lewat GET parameter
 async function pushToGS(action, payload) {
   const url = DB.gs_url || GS_URL;
-  if (!url || url.includes('GANTI_DENGAN')) return false;
+  if (!url || url.trim() === '') return false;
   try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action, ...payload })
-    });
-    const json = await res.json();
-    return json.status === 'ok';
+    const body = Object.assign({ action: action }, payload);
+    // Kirim data kecil langsung, data besar (array) via POST text/plain
+    const bodyStr = JSON.stringify(body);
+    let res;
+    if (bodyStr.length < 1800) {
+      // Query string (untuk operasi ringan seperti addLog)
+      const encoded = encodeURIComponent(bodyStr);
+      res = await fetch(url + '?payload=' + encoded, {
+        method: 'GET',
+        redirect: 'follow'
+      });
+    } else {
+      // POST dengan Content-Type text/plain (tidak trigger CORS preflight)
+      res = await fetch(url, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: bodyStr
+      });
+    }
+    const text = await res.text();
+    try {
+      const json = JSON.parse(text);
+      return json.status === 'ok';
+    } catch(_) { return true; } // GAS kadang tidak mengembalikan JSON saat no-cors
   } catch(e) {
+    console.warn('pushToGS error:', e.message);
     return false;
   }
 }
