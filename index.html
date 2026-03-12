@@ -375,7 +375,263 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 .rank-total { font-family: 'Sora', sans-serif; font-size: 1.1rem; font-weight: 800; color: var(--blue); }
 .rank-detail { font-size: 0.7rem; color: var(--text3); }
 
-/* ===== PRINT ===== */
+/* ===== WIZARD STEPS ===== */
+.wizard-steps {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.8rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  gap: 0;
+}
+.wstep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.wnum {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--bg2);
+  color: var(--text3);
+  font-family: 'Sora', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--border);
+  transition: all 0.3s;
+}
+.wlbl {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text3);
+  text-align: center;
+  transition: color 0.3s;
+  white-space: nowrap;
+}
+.wstep.active .wnum { background: var(--blue); color: white; border-color: var(--blue); box-shadow: 0 4px 12px rgba(26,115,232,0.35); }
+.wstep.active .wlbl { color: var(--blue); }
+.wstep.done .wnum { background: var(--green); color: white; border-color: var(--green); }
+.wstep.done .wlbl { color: var(--green); }
+.wline {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  min-width: 16px;
+  margin: 0 2px;
+  margin-bottom: 18px;
+  transition: background 0.3s;
+}
+.wline.done { background: var(--green); }
+
+/* ===== WIZARD PANES ===== */
+.wizard-pane { display: none; animation: fadeIn 0.25s ease; }
+.wizard-pane.active { display: block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+.wiz-header {
+  font-family: 'Sora', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--blue);
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 2px solid var(--bg2);
+}
+.wiz-nav {
+  display: flex;
+  gap: 0.7rem;
+  margin-top: 1.4rem;
+  flex-wrap: wrap;
+}
+
+/* ===== KELAS PICKER ===== */
+.kelas-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 0.7rem;
+  margin-bottom: 0.5rem;
+}
+.kelas-pick-btn {
+  padding: 0.9rem 0.7rem;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: #f0f7ff;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--text2);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+.kelas-pick-btn:hover, .kelas-pick-btn.selected {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: white;
+  box-shadow: 0 4px 14px rgba(26,115,232,0.3);
+  transform: translateY(-2px);
+}
+.kelas-pick-btn .kp-count { font-size: 0.68rem; font-weight: 500; opacity: 0.8; display: block; margin-top: 2px; }
+
+/* ===== SISWA SEARCH BOX ===== */
+.siswa-search-box { position: relative; margin-bottom: 0.5rem; }
+.siswa-search-box .form-control { font-size: 1rem; padding: 0.9rem 1.2rem; }
+.siswa-list {
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  margin-top: 0.4rem;
+  max-height: 240px;
+  overflow-y: auto;
+  display: none;
+  box-shadow: 0 8px 24px rgba(10,22,40,0.12);
+}
+.siswa-list.show { display: block; }
+.siswa-list-item {
+  padding: 0.8rem 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.siswa-list-item:last-child { border-bottom: none; }
+.siswa-list-item:hover { background: #f0f7ff; }
+.siswa-list-item:active { background: #e8f0fe; }
+.sli-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  color: white;
+  font-family: 'Sora', sans-serif;
+  font-weight: 800;
+  font-size: 0.88rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sli-name { font-weight: 600; font-size: 0.9rem; }
+.sli-info { font-size: 0.74rem; color: var(--text3); }
+.sli-empty { padding: 1.4rem; text-align: center; color: var(--text3); font-size: 0.85rem; }
+
+/* ===== SELECTED SISWA CARD ===== */
+.selected-siswa-card {
+  background: linear-gradient(135deg, #e8f0fe, #d4e4ff);
+  border: 2px solid var(--blue);
+  border-radius: 14px;
+  padding: 1rem 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+.selected-siswa-card .ssc-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--navy), var(--blue));
+  color: white; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.2rem;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.ssc-name { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1rem; color: var(--navy); }
+.ssc-info { font-size: 0.78rem; color: var(--text2); }
+.ssc-change { margin-left: auto; font-size: 0.78rem; color: var(--blue); cursor: pointer; text-decoration: underline; }
+
+/* ===== KATEGORI PICKER ===== */
+.kat-picker { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-bottom: 0.5rem; }
+.kat-btn {
+  padding: 0.75rem 1.3rem;
+  border-radius: 24px;
+  border: 2px solid var(--border);
+  background: white;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 0.86rem;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.kat-btn:hover, .kat-btn.selected { border-color: var(--blue); background: var(--blue); color: white; }
+.kat-btn.pgh:hover, .kat-btn.pgh.selected { border-color: var(--green); background: var(--green); }
+
+/* ===== INDIKATOR LIST ===== */
+.indikator-list { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 0.5rem; }
+.ind-btn {
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: white;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.2s;
+}
+.ind-btn:hover, .ind-btn.selected { border-color: var(--red); background: rgba(229,57,53,0.06); }
+.ind-btn.pgh:hover, .ind-btn.pgh.selected { border-color: var(--green); background: rgba(0,137,123,0.06); }
+.ind-icon { font-size: 1.4rem; flex-shrink: 0; }
+.ind-name { font-weight: 600; font-size: 0.9rem; }
+.ind-poin { margin-left: auto; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 0.95rem; flex-shrink: 0; }
+.ind-poin.minus { color: var(--red); }
+.ind-poin.plus { color: var(--green); }
+.ind-btn.selected .ind-name { color: var(--red); }
+.ind-btn.pgh.selected .ind-name { color: var(--green); }
+
+/* ===== SUMMARY CARD ===== */
+.summary-card {
+  background: linear-gradient(135deg, var(--navy), #1a3060);
+  color: white;
+  border-radius: 16px;
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+.sc-item { flex: 1; min-width: 120px; }
+.sc-label { font-size: 0.68rem; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.5px; }
+.sc-val { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 0.92rem; margin-top: 2px; }
+.sc-poin { text-align: center; background: rgba(255,255,255,0.12); border-radius: 10px; padding: 0.6rem 1rem; }
+.sc-poin-val { font-family: 'Sora', sans-serif; font-size: 1.6rem; font-weight: 800; }
+
+/* ===== MOBILE BOTTOM NAV ===== */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: white;
+  border-top: 1px solid var(--border);
+  z-index: 300;
+  padding: 0.4rem 0 env(safe-area-inset-bottom);
+  box-shadow: 0 -4px 20px rgba(10,22,40,0.12);
+}
+.mobile-nav-inner { display: flex; justify-content: space-around; }
+.mnav-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 0.5rem 1rem;
+  background: none; border: none; cursor: pointer;
+  font-size: 0.64rem; font-family: 'Sora', sans-serif; font-weight: 600;
+  color: var(--text3); transition: color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mnav-btn .mni { font-size: 1.5rem; line-height: 1; }
+.mnav-btn.active { color: var(--blue); }
+@media (max-width: 768px) {
+  .mobile-nav { display: block; }
+  .topbar-nav { display: none !important; }
+  body { padding-bottom: 72px; }
+  .wizard-steps { gap: 0; }
+  .wlbl { font-size: 0.58rem; }
+}
+@media (max-width: 480px) {
+  .kelas-picker { grid-template-columns: repeat(3, 1fr); }
+  .summary-card { flex-direction: column; gap: 0.6rem; }
+  .sc-poin { text-align: left; }
+}
+
+/* ===== FORM CONTROL LG ===== */
+.form-control-lg { padding: 0.9rem 1.2rem; font-size: 1rem; }
 @media print {
   body * { visibility: hidden; }
   #print-area, #print-area * { visibility: visible; }
@@ -443,6 +699,21 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
   <span id="syncStatus">Belum terhubung</span>
   <span style="margin-left:auto; color:rgba(255,255,255,0.4);" id="syncTime"></span>
   <button onclick="syncAll()" style="background:rgba(255,255,255,0.1); border:none; color:rgba(255,255,255,0.6); border-radius:5px; padding:2px 10px; font-size:0.7rem; cursor:pointer;">↻ Sinkron</button>
+</div>
+
+<!-- ===== MOBILE BOTTOM NAV ===== -->
+<div class="mobile-nav" id="mobileNav">
+  <div class="mobile-nav-inner">
+    <button class="mnav-btn active" id="mnav_dashboard" onclick="showPage('dashboard'); setMobileNav('dashboard')">
+      <span class="mni">🏠</span>Beranda
+    </button>
+    <button class="mnav-btn" id="mnav_piket" onclick="showPageWithAuth('piket'); setMobileNav('piket')">
+      <span class="mni">📋</span>Piket
+    </button>
+    <button class="mnav-btn" id="mnav_admin" onclick="showPageWithAuth('admin'); setMobileNav('admin')">
+      <span class="mni">⚙️</span>Admin
+    </button>
+  </div>
 </div>
 
 <!-- ===== LOGIN MODAL ===== -->
@@ -651,45 +922,99 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
     <!-- Tab: Pelanggaran -->
     <div class="tab-pane active" id="piket-pelanggaran">
       <div class="section">
-        <div class="section-title" style="margin-bottom:1.2rem;">⚠️ Input Pelanggaran Siswa</div>
-        <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
-          <div class="form-group">
-            <label>Tanggal *</label>
-            <input type="date" class="form-control" id="pel_tgl">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.4rem; flex-wrap:wrap; gap:0.6rem;">
+          <div class="section-title">⚠️ Input Pelanggaran Siswa</div>
+          <button class="btn btn-outline btn-sm" onclick="resetPelForm()">↺ Isi Ulang</button>
+        </div>
+        <!-- Step Indicator -->
+        <div class="wizard-steps" id="pel_steps">
+          <div class="wstep active" id="pel_ws1"><span class="wnum">1</span><span class="wlbl">Tanggal</span></div>
+          <div class="wline"></div>
+          <div class="wstep" id="pel_ws2"><span class="wnum">2</span><span class="wlbl">Kelas</span></div>
+          <div class="wline"></div>
+          <div class="wstep" id="pel_ws3"><span class="wnum">3</span><span class="wlbl">Siswa</span></div>
+          <div class="wline"></div>
+          <div class="wstep" id="pel_ws4"><span class="wnum">4</span><span class="wlbl">Kategori</span></div>
+          <div class="wline"></div>
+          <div class="wstep" id="pel_ws5"><span class="wnum">5</span><span class="wlbl">Indikator</span></div>
+          <div class="wline"></div>
+          <div class="wstep" id="pel_ws6"><span class="wnum">6</span><span class="wlbl">Tindakan</span></div>
+        </div>
+
+        <!-- Step 1: Tanggal -->
+        <div class="wizard-pane active" id="pel_step1">
+          <div class="wiz-header">📅 Langkah 1 — Pilih Tanggal</div>
+          <div class="form-group" style="max-width:320px;">
+            <label>Tanggal Kejadian *</label>
+            <input type="date" class="form-control form-control-lg" id="pel_tgl">
           </div>
-          <div class="form-group">
-            <label>Nama Siswa *</label>
-            <select class="form-control" id="pel_siswa">
-              <option value="">-- Pilih Siswa --</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Kategori Pelanggaran *</label>
-            <select class="form-control" id="pel_kategori" onchange="filterPelanggaranByKat()">
-              <option value="">-- Pilih Kategori --</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Indikator Pelanggaran *</label>
-            <select class="form-control" id="pel_item">
-              <option value="">-- Pilih Pelanggaran --</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Guru Piket</label>
-            <select class="form-control" id="pel_guru">
-              <option value="">-- Pilih Guru --</option>
-            </select>
-          </div>
-          <div class="form-group" style="grid-column: 1/-1;">
-            <label>Tindakan Guru Piket</label>
-            <textarea class="form-control" id="pel_tindakan" rows="3" placeholder="Deskripsikan tindakan yang dilakukan..."></textarea>
+          <div class="wiz-nav"><button class="btn btn-primary" onclick="pelNext(1)">Lanjut →</button></div>
+        </div>
+
+        <!-- Step 2: Kelas -->
+        <div class="wizard-pane" id="pel_step2">
+          <div class="wiz-header">🏫 Langkah 2 — Pilih Kelas</div>
+          <div class="kelas-picker" id="pel_kelas_picker"></div>
+          <div class="wiz-nav">
+            <button class="btn btn-outline" onclick="pelBack(2)">← Kembali</button>
           </div>
         </div>
-        <div style="display:flex; gap:0.8rem; align-items:center; flex-wrap:wrap;">
-          <button class="btn btn-danger" onclick="submitPelanggaran()">💾 Simpan Pelanggaran</button>
-          <button class="btn btn-outline" onclick="resetPelForm()">↺ Reset</button>
-          <span id="pelPoinPreview" style="font-size:0.82rem; color:var(--text3);"></span>
+
+        <!-- Step 3: Siswa -->
+        <div class="wizard-pane" id="pel_step3">
+          <div class="wiz-header">🔍 Langkah 3 — Cari & Pilih Siswa</div>
+          <div class="siswa-search-box">
+            <input type="text" class="form-control" id="pel_siswa_search" placeholder="🔍 Ketik nama siswa..." oninput="searchSiswaWiz('pel')" autocomplete="off">
+            <div class="siswa-list" id="pel_siswa_list"></div>
+          </div>
+          <div class="selected-siswa-card" id="pel_siswa_card" style="display:none;"></div>
+          <!-- hidden value holder -->
+          <input type="hidden" id="pel_siswa">
+          <div class="wiz-nav">
+            <button class="btn btn-outline" onclick="pelBack(3)">← Kembali</button>
+            <button class="btn btn-primary" id="pel_btn_next3" onclick="pelNext(3)" style="display:none;">Lanjut →</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Kategori -->
+        <div class="wizard-pane" id="pel_step4">
+          <div class="wiz-header">🗂️ Langkah 4 — Pilih Kategori Pelanggaran</div>
+          <div class="kat-picker" id="pel_kat_picker"></div>
+          <div class="wiz-nav"><button class="btn btn-outline" onclick="pelBack(4)">← Kembali</button></div>
+        </div>
+
+        <!-- Step 5: Indikator -->
+        <div class="wizard-pane" id="pel_step5">
+          <div class="wiz-header">⚠️ Langkah 5 — Pilih Indikator Pelanggaran</div>
+          <div class="indikator-list" id="pel_indikator_list"></div>
+          <!-- hidden -->
+          <input type="hidden" id="pel_item">
+          <div class="wiz-nav">
+            <button class="btn btn-outline" onclick="pelBack(5)">← Kembali</button>
+            <button class="btn btn-primary" id="pel_btn_next5" onclick="pelNext(5)" style="display:none;">Lanjut →</button>
+          </div>
+        </div>
+
+        <!-- Step 6: Tindakan & Guru -->
+        <div class="wizard-pane" id="pel_step6">
+          <div class="wiz-header">✍️ Langkah 6 — Tindakan Guru Piket</div>
+          <div class="summary-card" id="pel_summary"></div>
+          <div class="form-grid" style="grid-template-columns: 1fr; gap:0.8rem; margin-top:1rem;">
+            <div class="form-group">
+              <label>Guru Piket</label>
+              <select class="form-control" id="pel_guru">
+                <option value="">-- Pilih Guru (Opsional) --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Tindakan Guru Piket *</label>
+              <textarea class="form-control" id="pel_tindakan" rows="4" placeholder="Deskripsikan tindakan yang dilakukan guru piket..."></textarea>
+            </div>
+          </div>
+          <div class="wiz-nav">
+            <button class="btn btn-outline" onclick="pelBack(6)">← Kembali</button>
+            <button class="btn btn-danger" onclick="submitPelanggaran()">💾 Simpan Pelanggaran</button>
+          </div>
         </div>
       </div>
     </div>
@@ -697,45 +1022,95 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
     <!-- Tab: Penghargaan -->
     <div class="tab-pane" id="piket-penghargaan">
       <div class="section">
-        <div class="section-title" style="margin-bottom:1.2rem;">🏆 Input Penghargaan Siswa</div>
-        <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
-          <div class="form-group">
-            <label>Tanggal *</label>
-            <input type="date" class="form-control" id="pgh_tgl">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.4rem; flex-wrap:wrap; gap:0.6rem;">
+          <div class="section-title">🏆 Input Penghargaan Siswa</div>
+          <button class="btn btn-outline btn-sm" onclick="resetPghForm()">↺ Isi Ulang</button>
+        </div>
+        <!-- Step Indicator -->
+        <div class="wizard-steps" id="pgh_steps">
+          <div class="wstep active" id="pgh_ws1"><span class="wnum">1</span><span class="wlbl">Tanggal</span></div>
+          <div class="wline"></div>
+          <div class="wstep" id="pgh_ws2"><span class="wnum">2</span><span class="wlbl">Kelas</span></div>
+          <div class="wline"></div>
+          <div class="wstep" id="pgh_ws3"><span class="wnum">3</span><span class="wlbl">Siswa</span></div>
+          <div class="wline"></div>
+          <div class="wstep" id="pgh_ws4"><span class="wnum">4</span><span class="wlbl">Kategori</span></div>
+          <div class="wline"></div>
+          <div class="wstep" id="pgh_ws5"><span class="wnum">5</span><span class="wlbl">Indikator</span></div>
+          <div class="wline"></div>
+          <div class="wstep" id="pgh_ws6"><span class="wnum">6</span><span class="wlbl">Keterangan</span></div>
+        </div>
+
+        <!-- Step 1 -->
+        <div class="wizard-pane active" id="pgh_step1">
+          <div class="wiz-header" style="color:var(--green);">📅 Langkah 1 — Pilih Tanggal</div>
+          <div class="form-group" style="max-width:320px;">
+            <label>Tanggal Kejadian *</label>
+            <input type="date" class="form-control form-control-lg" id="pgh_tgl">
           </div>
-          <div class="form-group">
-            <label>Nama Siswa *</label>
-            <select class="form-control" id="pgh_siswa">
-              <option value="">-- Pilih Siswa --</option>
-            </select>
+          <div class="wiz-nav"><button class="btn btn-success" onclick="pghNext(1)">Lanjut →</button></div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="wizard-pane" id="pgh_step2">
+          <div class="wiz-header" style="color:var(--green);">🏫 Langkah 2 — Pilih Kelas</div>
+          <div class="kelas-picker" id="pgh_kelas_picker"></div>
+          <div class="wiz-nav"><button class="btn btn-outline" onclick="pghBack(2)">← Kembali</button></div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="wizard-pane" id="pgh_step3">
+          <div class="wiz-header" style="color:var(--green);">🔍 Langkah 3 — Cari & Pilih Siswa</div>
+          <div class="siswa-search-box">
+            <input type="text" class="form-control" id="pgh_siswa_search" placeholder="🔍 Ketik nama siswa..." oninput="searchSiswaWiz('pgh')" autocomplete="off">
+            <div class="siswa-list" id="pgh_siswa_list"></div>
           </div>
-          <div class="form-group">
-            <label>Kategori Penghargaan *</label>
-            <select class="form-control" id="pgh_kategori" onchange="filterPenghargaanByKat()">
-              <option value="">-- Pilih Kategori --</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Indikator Penghargaan *</label>
-            <select class="form-control" id="pgh_item">
-              <option value="">-- Pilih Penghargaan --</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Pemberi Penghargaan</label>
-            <select class="form-control" id="pgh_guru">
-              <option value="">-- Pilih Guru --</option>
-            </select>
-          </div>
-          <div class="form-group" style="grid-column: 1/-1;">
-            <label>Keterangan</label>
-            <textarea class="form-control" id="pgh_keterangan" rows="3" placeholder="Keterangan tambahan..."></textarea>
+          <div class="selected-siswa-card" id="pgh_siswa_card" style="display:none;"></div>
+          <input type="hidden" id="pgh_siswa">
+          <div class="wiz-nav">
+            <button class="btn btn-outline" onclick="pghBack(3)">← Kembali</button>
+            <button class="btn btn-success" id="pgh_btn_next3" onclick="pghNext(3)" style="display:none;">Lanjut →</button>
           </div>
         </div>
-        <div style="display:flex; gap:0.8rem; align-items:center; flex-wrap:wrap;">
-          <button class="btn btn-success" onclick="submitPenghargaan()">💾 Simpan Penghargaan</button>
-          <button class="btn btn-outline" onclick="resetPghForm()">↺ Reset</button>
-          <span id="pghPoinPreview" style="font-size:0.82rem; color:var(--text3);"></span>
+
+        <!-- Step 4 -->
+        <div class="wizard-pane" id="pgh_step4">
+          <div class="wiz-header" style="color:var(--green);">🗂️ Langkah 4 — Pilih Kategori Penghargaan</div>
+          <div class="kat-picker" id="pgh_kat_picker"></div>
+          <div class="wiz-nav"><button class="btn btn-outline" onclick="pghBack(4)">← Kembali</button></div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="wizard-pane" id="pgh_step5">
+          <div class="wiz-header" style="color:var(--green);">🏆 Langkah 5 — Pilih Indikator Penghargaan</div>
+          <div class="indikator-list" id="pgh_indikator_list"></div>
+          <input type="hidden" id="pgh_item">
+          <div class="wiz-nav">
+            <button class="btn btn-outline" onclick="pghBack(5)">← Kembali</button>
+            <button class="btn btn-success" id="pgh_btn_next5" onclick="pghNext(5)" style="display:none;">Lanjut →</button>
+          </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="wizard-pane" id="pgh_step6">
+          <div class="wiz-header" style="color:var(--green);">✍️ Langkah 6 — Keterangan & Pemberi</div>
+          <div class="summary-card" id="pgh_summary"></div>
+          <div class="form-grid" style="grid-template-columns: 1fr; gap:0.8rem; margin-top:1rem;">
+            <div class="form-group">
+              <label>Pemberi Penghargaan</label>
+              <select class="form-control" id="pgh_guru">
+                <option value="">-- Pilih Guru (Opsional) --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Keterangan</label>
+              <textarea class="form-control" id="pgh_keterangan" rows="4" placeholder="Keterangan tambahan..."></textarea>
+            </div>
+          </div>
+          <div class="wiz-nav">
+            <button class="btn btn-outline" onclick="pghBack(6)">← Kembali</button>
+            <button class="btn btn-success" onclick="submitPenghargaan()">💾 Simpan Penghargaan</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1495,36 +1870,320 @@ function renderAdminLogs() {
 }
 
 // ============================================================
-// FILL FORM OPTIONS
+// WIZARD STATE
+// ============================================================
+const pelState = { step: 1, kelas: '', siswaIdx: '', itemIdx: '', kategori: '' };
+const pghState = { step: 1, kelas: '', siswaIdx: '', itemIdx: '', kategori: '' };
+
+function setMobileNav(page) {
+  document.querySelectorAll('.mnav-btn').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById('mnav_' + page);
+  if (el) el.classList.add('active');
+}
+
+// ============================================================
+// WIZARD: PELANGGARAN
+// ============================================================
+function pelShowStep(n) {
+  for (let i = 1; i <= 6; i++) {
+    const pane = document.getElementById('pel_step' + i);
+    if (pane) pane.classList.toggle('active', i === n);
+    const ws = document.getElementById('pel_ws' + i);
+    if (ws) {
+      ws.classList.toggle('active', i === n);
+      ws.classList.toggle('done', i < n);
+    }
+    const line = document.querySelectorAll('#pel_steps .wline')[i - 1];
+    if (line) line.classList.toggle('done', i < n);
+  }
+  pelState.step = n;
+}
+
+function pelNext(from) {
+  if (from === 1) {
+    if (!document.getElementById('pel_tgl').value) { toast('⚠️ Pilih tanggal terlebih dahulu!', 'error'); return; }
+    // Build kelas picker
+    const picker = document.getElementById('pel_kelas_picker');
+    picker.innerHTML = DB.kelas.length === 0
+      ? '<div style="color:var(--text3);font-size:0.88rem;">Belum ada data kelas. Tambahkan di Admin.</div>'
+      : DB.kelas.map(k => {
+          const cnt = DB.siswa.filter(s => s.kelas === k.nama).length;
+          return `<button class="kelas-pick-btn" onclick="pelSelectKelas('${k.nama}', this)">${k.nama}<span class="kp-count">${cnt} siswa</span></button>`;
+        }).join('');
+    pelShowStep(2);
+  } else if (from === 3) {
+    if (!pelState.siswaIdx && pelState.siswaIdx !== 0) { toast('⚠️ Pilih siswa terlebih dahulu!', 'error'); return; }
+    // Build kategori picker
+    const kats = [...new Set(DB.pelanggaran.map(p => p.kategori || 'Umum'))];
+    document.getElementById('pel_kat_picker').innerHTML = kats.length === 0
+      ? '<div style="color:var(--text3);">Belum ada data pelanggaran.</div>'
+      : kats.map(k => `<button class="kat-btn" onclick="pelSelectKat('${k}', this)">${k}</button>`).join('');
+    pelShowStep(4);
+  } else if (from === 5) {
+    if (pelState.itemIdx === '' || pelState.itemIdx === undefined) { toast('⚠️ Pilih indikator pelanggaran!', 'error'); return; }
+    buildPelSummary();
+    fillGuruSelect('pel_guru');
+    pelShowStep(6);
+  }
+}
+
+function pelBack(from) {
+  if (from === 2) pelShowStep(1);
+  else if (from === 3) { pelState.kelas = ''; pelShowStep(2); }
+  else if (from === 4) pelShowStep(3);
+  else if (from === 5) pelShowStep(4);
+  else if (from === 6) pelShowStep(5);
+}
+
+function pelSelectKelas(kelas, btn) {
+  pelState.kelas = kelas;
+  document.querySelectorAll('#pel_kelas_picker .kelas-pick-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  // Build siswa list for this kelas, clear search
+  document.getElementById('pel_siswa_search').value = '';
+  const listEl = document.getElementById('pel_siswa_list');
+  listEl.classList.remove('show');
+  // Clear selected siswa
+  pelState.siswaIdx = '';
+  document.getElementById('pel_siswa').value = '';
+  document.getElementById('pel_siswa_card').style.display = 'none';
+  document.getElementById('pel_btn_next3').style.display = 'none';
+  setTimeout(() => pelShowStep(3), 150);
+}
+
+function pelSelectKat(kat, btn) {
+  pelState.kategori = kat;
+  document.querySelectorAll('#pel_kat_picker .kat-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  // Build indikator list
+  const filtered = DB.pelanggaran.filter(p => (p.kategori || 'Umum') === kat);
+  document.getElementById('pel_indikator_list').innerHTML = filtered.length === 0
+    ? '<div style="color:var(--text3); padding:1rem;">Tidak ada indikator untuk kategori ini.</div>'
+    : filtered.map(p => {
+        const idx = DB.pelanggaran.indexOf(p);
+        return `<button class="ind-btn" onclick="pelSelectItem(${idx}, this)">
+          <span class="ind-icon">⚠️</span>
+          <span class="ind-name">${p.indikator || p.text}</span>
+          <span class="ind-poin minus">-${p.poin}</span>
+        </button>`;
+      }).join('');
+  // Reset item
+  pelState.itemIdx = '';
+  document.getElementById('pel_item').value = '';
+  document.getElementById('pel_btn_next5').style.display = 'none';
+  setTimeout(() => pelShowStep(5), 150);
+}
+
+function pelSelectItem(idx, btn) {
+  pelState.itemIdx = idx;
+  document.getElementById('pel_item').value = idx;
+  document.querySelectorAll('#pel_indikator_list .ind-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('pel_btn_next5').style.display = 'inline-flex';
+}
+
+function buildPelSummary() {
+  const tgl = document.getElementById('pel_tgl').value;
+  const s = DB.siswa[pelState.siswaIdx];
+  const p = DB.pelanggaran[pelState.itemIdx];
+  document.getElementById('pel_summary').innerHTML = `
+    <div class="sc-item"><div class="sc-label">Tanggal</div><div class="sc-val">📅 ${tgl}</div></div>
+    <div class="sc-item"><div class="sc-label">Siswa</div><div class="sc-val">👤 ${s ? s.nama : '-'}</div></div>
+    <div class="sc-item"><div class="sc-label">Kelas</div><div class="sc-val">🏫 ${s ? s.kelas : '-'}</div></div>
+    <div class="sc-item"><div class="sc-label">Pelanggaran</div><div class="sc-val">⚠️ ${p ? (p.indikator || p.text) : '-'}</div></div>
+    <div class="sc-poin"><div class="sc-label">Poin</div><div class="sc-poin-val" style="color:#ff5252;">${p ? '-' + p.poin : '-'}</div></div>`;
+}
+
+// ============================================================
+// WIZARD: PENGHARGAAN
+// ============================================================
+function pghShowStep(n) {
+  for (let i = 1; i <= 6; i++) {
+    const pane = document.getElementById('pgh_step' + i);
+    if (pane) pane.classList.toggle('active', i === n);
+    const ws = document.getElementById('pgh_ws' + i);
+    if (ws) {
+      ws.classList.toggle('active', i === n);
+      ws.classList.toggle('done', i < n);
+    }
+    const line = document.querySelectorAll('#pgh_steps .wline')[i - 1];
+    if (line) line.classList.toggle('done', i < n);
+  }
+  pghState.step = n;
+}
+
+function pghNext(from) {
+  if (from === 1) {
+    if (!document.getElementById('pgh_tgl').value) { toast('⚠️ Pilih tanggal terlebih dahulu!', 'error'); return; }
+    const picker = document.getElementById('pgh_kelas_picker');
+    picker.innerHTML = DB.kelas.length === 0
+      ? '<div style="color:var(--text3);font-size:0.88rem;">Belum ada data kelas.</div>'
+      : DB.kelas.map(k => {
+          const cnt = DB.siswa.filter(s => s.kelas === k.nama).length;
+          return `<button class="kelas-pick-btn" onclick="pghSelectKelas('${k.nama}', this)">${k.nama}<span class="kp-count">${cnt} siswa</span></button>`;
+        }).join('');
+    pghShowStep(2);
+  } else if (from === 3) {
+    if (!pghState.siswaIdx && pghState.siswaIdx !== 0) { toast('⚠️ Pilih siswa terlebih dahulu!', 'error'); return; }
+    const kats = [...new Set(DB.penghargaan.map(p => p.kategori || 'Umum'))];
+    document.getElementById('pgh_kat_picker').innerHTML = kats.length === 0
+      ? '<div style="color:var(--text3);">Belum ada data penghargaan.</div>'
+      : kats.map(k => `<button class="kat-btn pgh" onclick="pghSelectKat('${k}', this)">${k}</button>`).join('');
+    pghShowStep(4);
+  } else if (from === 5) {
+    if (pghState.itemIdx === '' || pghState.itemIdx === undefined) { toast('⚠️ Pilih indikator penghargaan!', 'error'); return; }
+    buildPghSummary();
+    fillGuruSelect('pgh_guru');
+    pghShowStep(6);
+  }
+}
+
+function pghBack(from) {
+  if (from === 2) pghShowStep(1);
+  else if (from === 3) { pghState.kelas = ''; pghShowStep(2); }
+  else if (from === 4) pghShowStep(3);
+  else if (from === 5) pghShowStep(4);
+  else if (from === 6) pghShowStep(5);
+}
+
+function pghSelectKelas(kelas, btn) {
+  pghState.kelas = kelas;
+  document.querySelectorAll('#pgh_kelas_picker .kelas-pick-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('pgh_siswa_search').value = '';
+  document.getElementById('pgh_siswa_list').classList.remove('show');
+  pghState.siswaIdx = '';
+  document.getElementById('pgh_siswa').value = '';
+  document.getElementById('pgh_siswa_card').style.display = 'none';
+  document.getElementById('pgh_btn_next3').style.display = 'none';
+  setTimeout(() => pghShowStep(3), 150);
+}
+
+function pghSelectKat(kat, btn) {
+  pghState.kategori = kat;
+  document.querySelectorAll('#pgh_kat_picker .kat-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  const filtered = DB.penghargaan.filter(p => (p.kategori || 'Umum') === kat);
+  document.getElementById('pgh_indikator_list').innerHTML = filtered.length === 0
+    ? '<div style="color:var(--text3); padding:1rem;">Tidak ada indikator untuk kategori ini.</div>'
+    : filtered.map(p => {
+        const idx = DB.penghargaan.indexOf(p);
+        return `<button class="ind-btn pgh" onclick="pghSelectItem(${idx}, this)">
+          <span class="ind-icon">🏆</span>
+          <span class="ind-name">${p.indikator || p.text}</span>
+          <span class="ind-poin plus">+${p.poin}</span>
+        </button>`;
+      }).join('');
+  pghState.itemIdx = '';
+  document.getElementById('pgh_item').value = '';
+  document.getElementById('pgh_btn_next5').style.display = 'none';
+  setTimeout(() => pghShowStep(5), 150);
+}
+
+function pghSelectItem(idx, btn) {
+  pghState.itemIdx = idx;
+  document.getElementById('pgh_item').value = idx;
+  document.querySelectorAll('#pgh_indikator_list .ind-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('pgh_btn_next5').style.display = 'inline-flex';
+}
+
+function buildPghSummary() {
+  const tgl = document.getElementById('pgh_tgl').value;
+  const s = DB.siswa[pghState.siswaIdx];
+  const p = DB.penghargaan[pghState.itemIdx];
+  document.getElementById('pgh_summary').innerHTML = `
+    <div class="sc-item"><div class="sc-label">Tanggal</div><div class="sc-val">📅 ${tgl}</div></div>
+    <div class="sc-item"><div class="sc-label">Siswa</div><div class="sc-val">👤 ${s ? s.nama : '-'}</div></div>
+    <div class="sc-item"><div class="sc-label">Kelas</div><div class="sc-val">🏫 ${s ? s.kelas : '-'}</div></div>
+    <div class="sc-item"><div class="sc-label">Penghargaan</div><div class="sc-val">🏆 ${p ? (p.indikator || p.text) : '-'}</div></div>
+    <div class="sc-poin"><div class="sc-label">Poin</div><div class="sc-poin-val" style="color:#69f0ae;">${p ? '+' + p.poin : '-'}</div></div>`;
+}
+
+// ============================================================
+// SISWA SEARCH WIZARD
+// ============================================================
+function searchSiswaWiz(prefix) {
+  const q = document.getElementById(prefix + '_siswa_search').value.trim().toLowerCase();
+  const listEl = document.getElementById(prefix + '_siswa_list');
+  const state = prefix === 'pel' ? pelState : pghState;
+  const kelas = state.kelas;
+  const pool = kelas ? DB.siswa.filter(s => s.kelas === kelas) : DB.siswa;
+
+  if (!q) { listEl.classList.remove('show'); return; }
+  const matches = pool.filter(s => s.nama.toLowerCase().includes(q)).slice(0, 8);
+  if (matches.length === 0) {
+    listEl.innerHTML = `<div class="sli-empty">Tidak ada siswa dengan nama "${q}"</div>`;
+  } else {
+    listEl.innerHTML = matches.map(s => {
+      const idx = DB.siswa.indexOf(s);
+      const initials = s.nama.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();
+      return `<div class="siswa-list-item" onclick="selectSiswaWiz('${prefix}', ${idx})">
+        <div class="sli-avatar">${initials}</div>
+        <div><div class="sli-name">${s.nama}</div><div class="sli-info">${s.kelas} · NIS: ${s.nis}</div></div>
+      </div>`;
+    }).join('');
+  }
+  listEl.classList.add('show');
+}
+
+function selectSiswaWiz(prefix, idx) {
+  const s = DB.siswa[idx];
+  if (!s) return;
+  const state = prefix === 'pel' ? pelState : pghState;
+  state.siswaIdx = idx;
+  document.getElementById(prefix + '_siswa').value = idx;
+
+  const initials = s.nama.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();
+  const card = document.getElementById(prefix + '_siswa_card');
+  card.innerHTML = `
+    <div class="ssc-avatar">${initials}</div>
+    <div>
+      <div class="ssc-name">${s.nama}</div>
+      <div class="ssc-info">Kelas ${s.kelas} &bull; NIS: ${s.nis}</div>
+    </div>
+    <span class="ssc-change" onclick="clearSiswaWiz('${prefix}')">Ganti Siswa</span>`;
+  card.style.display = 'flex';
+
+  document.getElementById(prefix + '_siswa_search').value = '';
+  document.getElementById(prefix + '_siswa_list').classList.remove('show');
+  document.getElementById(prefix + '_btn_next3').style.display = 'inline-flex';
+}
+
+function clearSiswaWiz(prefix) {
+  const state = prefix === 'pel' ? pelState : pghState;
+  state.siswaIdx = '';
+  document.getElementById(prefix + '_siswa').value = '';
+  document.getElementById(prefix + '_siswa_card').style.display = 'none';
+  document.getElementById(prefix + '_btn_next3').style.display = 'none';
+  document.getElementById(prefix + '_siswa_search').value = '';
+  document.getElementById(prefix + '_siswa_search').focus();
+}
+
+function fillGuruSelect(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = '<option value="">-- Pilih Guru (Opsional) --</option>' + DB.guru.map(g => `<option value="${g.nama}">${g.nama}</option>`).join('');
+}
+
+// ============================================================
+// FILL FORM OPTIONS (simplified — wizard handles most)
 // ============================================================
 function fillFormOptions() {
-  const siswaOpts = '<option value="">-- Pilih Siswa --</option>' + DB.siswa.map((s,i)=>`<option value="${i}">${s.nama} (${s.kelas}) - ${s.nis}</option>`).join('');
-  ['pel_siswa','pgh_siswa','cetak_siswa'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.innerHTML = '<option value="">-- Pilih Siswa --</option>' + DB.siswa.map((s,i)=>`<option value="${i}">${s.nama} (${s.kelas})</option>`).join('');
-  });
-
-  const guruOpts = '<option value="">-- Pilih Guru --</option>' + DB.guru.map(g=>`<option value="${g.nama}">${g.nama}</option>`).join('');
-  ['pel_guru','pgh_guru'].forEach(id=>{const el=document.getElementById(id); if(el) el.innerHTML=guruOpts;});
-
+  // For cetak tab and rank filter
   const kelasOpts = '<option value="">-- Semua Kelas --</option>' + DB.kelas.map(k=>`<option value="${k.nama}">${k.nama}</option>`).join('');
-  ['rankKelasFilter','cetak_kelas','siswaKelasFilter','logKelasFilter','logKelasFilter'].forEach(id=>{const el=document.getElementById(id); if(el) el.innerHTML=kelasOpts.replace('-- Semua Kelas --', id.includes('cetak')?'-- Pilih Kelas --':'-- Semua Kelas --');});
+  ['rankKelasFilter','siswaKelasFilter','logKelasFilter'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.innerHTML=kelasOpts;
+  });
+  const cetakKelasEl = document.getElementById('cetak_kelas');
+  if (cetakKelasEl) cetakKelasEl.innerHTML = '<option value="">-- Pilih Kelas --</option>' + DB.kelas.map(k=>`<option value="${k.nama}">${k.nama}</option>`).join('');
 
-  // Kategori pelanggaran
-  const pelKats = [...new Set(DB.pelanggaran.map(p=>p.kategori||'Umum'))];
-  const pelKatOpts = '<option value="">-- Kategori --</option>' + pelKats.map(k=>`<option value="${k}">${k}</option>`).join('');
-  const pelKatEl = document.getElementById('pel_kategori');
-  if(pelKatEl) pelKatEl.innerHTML = pelKatOpts;
-
-  // Kategori penghargaan
-  const pghKats = [...new Set(DB.penghargaan.map(p=>p.kategori||'Umum'))];
-  const pghKatOpts = '<option value="">-- Kategori --</option>' + pghKats.map(k=>`<option value="${k}">${k}</option>`).join('');
-  const pghKatEl = document.getElementById('pgh_kategori');
-  if(pghKatEl) pghKatEl.innerHTML = pghKatOpts;
-
-  filterPelanggaranByKat();
-  filterPenghargaanByKat();
+  const siswaEl = document.getElementById('cetak_siswa');
+  if (siswaEl) siswaEl.innerHTML = '<option value="">-- Pilih Siswa --</option>' + DB.siswa.map((s,i)=>`<option value="${i}">${s.nama} (${s.kelas})</option>`).join('');
 }
+
+
 
 function fillAdminForms() {
   // Identitas
@@ -1542,50 +2201,17 @@ function fillAdminForms() {
   if(gsEl) gsEl.value = DB.gs_url || '';
 }
 
-function filterPelanggaranByKat() {
-  const kat = document.getElementById('pel_kategori')?.value || '';
-  const filtered = kat ? DB.pelanggaran.filter(p=>(p.kategori||'Umum')===kat) : DB.pelanggaran;
-  const el = document.getElementById('pel_item');
-  if(el) {
-    el.innerHTML = '<option value="">-- Pilih Pelanggaran --</option>' + filtered.map((p,i)=>`<option value="${DB.pelanggaran.indexOf(p)}">${p.indikator||p.text} (${p.poin} poin)</option>`).join('');
-    el.onchange = function() {
-      const idx = this.value;
-      const prev = document.getElementById('pelPoinPreview');
-      if(prev && idx !== '') {
-        const item = DB.pelanggaran[idx];
-        prev.innerHTML = `⚠️ Poin: <strong style="color:var(--red)">-${item.poin}</strong>`;
-      } else if(prev) prev.innerHTML = '';
-    };
-  }
-}
-
-function filterPenghargaanByKat() {
-  const kat = document.getElementById('pgh_kategori')?.value || '';
-  const filtered = kat ? DB.penghargaan.filter(p=>(p.kategori||'Umum')===kat) : DB.penghargaan;
-  const el = document.getElementById('pgh_item');
-  if(el) {
-    el.innerHTML = '<option value="">-- Pilih Penghargaan --</option>' + filtered.map((p,i)=>`<option value="${DB.penghargaan.indexOf(p)}">${p.indikator||p.text} (+${p.poin} poin)</option>`).join('');
-    el.onchange = function() {
-      const idx = this.value;
-      const prev = document.getElementById('pghPoinPreview');
-      if(prev && idx !== '') {
-        const item = DB.penghargaan[idx];
-        prev.innerHTML = `🏆 Poin: <strong style="color:var(--green)">+${item.poin}</strong>`;
-      } else if(prev) prev.innerHTML = '';
-    };
-  }
-}
-
 // ============================================================
 // SUBMIT LOGS
 // ============================================================
 async function submitPelanggaran() {
-  const siswaIdx = document.getElementById('pel_siswa').value;
-  const itemIdx = document.getElementById('pel_item').value;
+  const siswaIdx = pelState.siswaIdx;
+  const itemIdx = pelState.itemIdx;
   const tgl = document.getElementById('pel_tgl').value;
   const guru = document.getElementById('pel_guru').value;
   const tindakan = document.getElementById('pel_tindakan').value;
-  if (!siswaIdx || itemIdx === '' || !tgl) { toast('⚠️ Lengkapi semua field wajib!', 'error'); return; }
+  if ((!siswaIdx && siswaIdx !== 0) || (itemIdx === '' || itemIdx === undefined) || !tgl) { toast('⚠️ Lengkapi semua data terlebih dahulu!', 'error'); return; }
+  if (!tindakan.trim()) { toast('⚠️ Tindakan guru piket wajib diisi!', 'error'); return; }
 
   const s = DB.siswa[siswaIdx];
   const p = DB.pelanggaran[itemIdx];
@@ -1601,12 +2227,12 @@ async function submitPelanggaran() {
 }
 
 async function submitPenghargaan() {
-  const siswaIdx = document.getElementById('pgh_siswa').value;
-  const itemIdx = document.getElementById('pgh_item').value;
+  const siswaIdx = pghState.siswaIdx;
+  const itemIdx = pghState.itemIdx;
   const tgl = document.getElementById('pgh_tgl').value;
   const guru = document.getElementById('pgh_guru').value;
   const ket = document.getElementById('pgh_keterangan').value;
-  if (!siswaIdx || itemIdx === '' || !tgl) { toast('⚠️ Lengkapi semua field wajib!', 'error'); return; }
+  if ((!siswaIdx && siswaIdx !== 0) || (itemIdx === '' || itemIdx === undefined) || !tgl) { toast('⚠️ Lengkapi semua data terlebih dahulu!', 'error'); return; }
 
   const s = DB.siswa[siswaIdx];
   const p = DB.penghargaan[itemIdx];
@@ -1622,18 +2248,30 @@ async function submitPenghargaan() {
 }
 
 function resetPelForm() {
-  ['pel_siswa','pel_kategori','pel_item','pel_guru'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  pelState.step = 1; pelState.kelas = ''; pelState.siswaIdx = ''; pelState.itemIdx = ''; pelState.kategori = '';
+  document.getElementById('pel_siswa').value = '';
+  document.getElementById('pel_item').value = '';
   const ta = document.getElementById('pel_tindakan'); if(ta) ta.value='';
-  const prev = document.getElementById('pelPoinPreview'); if(prev) prev.innerHTML='';
+  const sc = document.getElementById('pel_siswa_card'); if(sc) sc.style.display='none';
+  const sl = document.getElementById('pel_siswa_list'); if(sl) sl.classList.remove('show');
+  const ss = document.getElementById('pel_siswa_search'); if(ss) ss.value='';
+  document.getElementById('pel_btn_next3').style.display = 'none';
+  document.getElementById('pel_btn_next5').style.display = 'none';
   setTodayDates();
-  filterPelanggaranByKat();
+  pelShowStep(1);
 }
 function resetPghForm() {
-  ['pgh_siswa','pgh_kategori','pgh_item','pgh_guru'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  pghState.step = 1; pghState.kelas = ''; pghState.siswaIdx = ''; pghState.itemIdx = ''; pghState.kategori = '';
+  document.getElementById('pgh_siswa').value = '';
+  document.getElementById('pgh_item').value = '';
   const ta = document.getElementById('pgh_keterangan'); if(ta) ta.value='';
-  const prev = document.getElementById('pghPoinPreview'); if(prev) prev.innerHTML='';
+  const sc = document.getElementById('pgh_siswa_card'); if(sc) sc.style.display='none';
+  const sl = document.getElementById('pgh_siswa_list'); if(sl) sl.classList.remove('show');
+  const ss = document.getElementById('pgh_siswa_search'); if(ss) ss.value='';
+  document.getElementById('pgh_btn_next3').style.display = 'none';
+  document.getElementById('pgh_btn_next5').style.display = 'none';
   setTodayDates();
-  filterPenghargaanByKat();
+  pghShowStep(1);
 }
 
 // ============================================================
@@ -2103,6 +2741,8 @@ function showPage(page) {
     switchPiketTab('pelanggaran');
     renderRanking();
     fillFormOptions();
+    resetPelForm();
+    resetPghForm();
   }
   if (page === 'admin') {
     renderAdminAll();
