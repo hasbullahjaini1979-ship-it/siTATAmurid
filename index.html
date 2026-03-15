@@ -34,6 +34,7 @@
   --radius: 16px;
   --radius2: 12px;
 }
+html, body { overflow-x: hidden; max-width: 100%; }
 body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 h1,h2,h3,h4,h5 { font-family: 'Sora', sans-serif; }
 
@@ -56,7 +57,7 @@ h1,h2,h3,h4,h5 { font-family: 'Sora', sans-serif; }
   box-shadow: 0 2px 20px rgba(0,0,0,0.25);
   border-bottom: 3px solid var(--gold);
 }
-.topbar-brand { display: flex; align-items: center; gap: 14px; }
+.topbar-brand { display: flex; align-items: center; gap: 10px; min-width: 0; overflow: hidden; }
 .topbar-logo { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); }
 .topbar-name { font-family: 'Sora', sans-serif; font-size: 1rem; font-weight: 700; }
 .topbar-sub { font-size: 0.72rem; color: rgba(255,255,255,0.6); margin-top: 1px; }
@@ -118,7 +119,7 @@ h1,h2,h3,h4,h5 { font-family: 'Sora', sans-serif; }
 .clock-day { font-size: 0.75rem; color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
 
 /* ===== STAT CARDS ===== */
-.stats-row { max-width: 1300px; margin: -1px auto 0; padding: 0 2rem; }
+.stats-row { max-width: 1300px; margin: -1px auto 0; padding: 0 2rem; width: 100%; box-sizing: border-box; }
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; transform: translateY(-28px); }
 .stat-card {
   background: var(--card);
@@ -141,7 +142,7 @@ h1,h2,h3,h4,h5 { font-family: 'Sora', sans-serif; }
 .section-sub { font-size: 0.76rem; color: var(--text3); margin-top: 2px; }
 
 /* ===== MAIN CONTENT ===== */
-.main-content { max-width: 1300px; margin: 0 auto; padding: 0 2rem 2rem; }
+.main-content { max-width: 1300px; margin: 0 auto; padding: 0 2rem 2rem; width: 100%; box-sizing: border-box; }
 .two-col { display: grid; grid-template-columns: 1fr 2fr; gap: 1.4rem; }
 .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.4rem; }
 
@@ -258,7 +259,7 @@ h1,h2,h3,h4,h5 { font-family: 'Sora', sans-serif; }
 select.form-control { cursor: pointer; }
 
 /* ===== TABLE ===== */
-.table-wrap { overflow-x: auto; }
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
 table.data-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
 table.data-table th { padding: 0.75rem 1rem; text-align: left; background: #f0f4f8; font-weight: 700; font-family: 'Sora', sans-serif; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text2); border-bottom: 2px solid var(--border); }
 table.data-table td { padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); }
@@ -616,12 +617,14 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
   display: flex; flex-direction: column; align-items: center; gap: 3px;
   padding: 0.45rem 0.5rem;
   background: none; border: none; cursor: pointer;
-  font-size: 0.62rem; font-family: 'Sora', sans-serif; font-weight: 700;
+  font-size: 0.58rem; font-family: 'Sora', sans-serif; font-weight: 700;
   color: rgba(255,255,255,0.7); transition: all 0.2s;
   -webkit-tap-highlight-color: transparent;
   flex: 1;
   border-radius: 8px;
-  margin: 0 2px;
+  margin: 0 1px;
+  min-width: 0;
+  white-space: nowrap;
 }
 .mnav-btn .mni { font-size: 1.4rem; line-height: 1; }
 .mnav-btn.active {
@@ -645,13 +648,7 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 }
 .mnav-link .mni { font-size: 1.4rem; line-height: 1; }
 .mnav-link:hover { color: #f9a825; background: rgba(255,255,255,0.15); }
-@media (max-width: 900px) {
-  .mobile-nav { display: block; }
-  .topbar-nav { display: none !important; }
-  body { padding-bottom: 76px; }
-  .wizard-steps { gap: 0; }
-  .wlbl { font-size: 0.58rem; }
-}
+/* mobile nav rules moved below */
 @media (max-width: 480px) {
   .kelas-picker { grid-template-columns: repeat(3, 1fr); }
   .summary-card { flex-direction: column; gap: 0.6rem; }
@@ -667,13 +664,67 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 }
 
 /* ===== RESPONSIVE ===== */
+/* ===== RESPONSIVE MOBILE - SEMUA UKURAN HP ===== */
 @media (max-width: 900px) {
+  /* Mobile nav muncul */
+  .mobile-nav { display: block !important; }
+  .topbar-nav { display: none !important; }
+  body { padding-bottom: 80px; }
+
+  /* Layout grid jadi 1 kolom */
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .two-col, .three-col { grid-template-columns: 1fr; }
+  .two-col, .three-col { grid-template-columns: 1fr !important; }
   .piket-grid { grid-template-columns: repeat(2, 1fr); }
-  .topbar-nav { display: none; }
   .hero-grid { grid-template-columns: 1fr; }
   .hero-clock { text-align: left; }
+  .wizard-steps { gap: 0; }
+  .wlbl { font-size: 0.58rem; }
+
+  /* Cegah konten overflow ke samping */
+  .stats-row { padding: 0 0.75rem; }
+  .main-content { padding: 0 0.75rem 2rem; }
+  .page-header { padding: 1rem 0.75rem 0; }
+  table.data-table { font-size: 0.78rem; }
+  table.data-table th, table.data-table td { padding: 0.6rem 0.6rem; }
+}
+
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .topbar { padding: 0 0.75rem; height: 64px; }
+  .topbar-logo { width: 38px; height: 38px; }
+  .topbar-name { font-size: 0.88rem; }
+  .main-content { padding: 0 0.75rem 2rem; }
+  .hero { padding: 1.2rem 0.75rem; }
+  .hero-title { font-size: 1.2rem; }
+  .clock-time { font-size: 2rem; }
+  .stats-row { padding: 0 0.75rem; }
+  .section { padding: 1rem; }
+  .section-title { font-size: 0.9rem; }
+  .kelas-picker { grid-template-columns: repeat(3, 1fr); }
+  .summary-card { flex-direction: column; gap: 0.6rem; }
+  .sc-poin { text-align: left; }
+  .piket-grid { grid-template-columns: 1fr 1fr; }
+  .form-grid { grid-template-columns: 1fr !important; }
+  .btn-group { flex-direction: column; }
+  .btn-group .btn { width: 100%; justify-content: center; }
+  .tabs-bar { gap: 0; }
+  .tab-item { padding: 0.6rem 0.7rem; font-size: 0.75rem; }
+  .wiz-nav { flex-wrap: wrap; }
+  .wiz-nav .btn { flex: 1; justify-content: center; min-width: 120px; }
+  .modal-box { padding: 1.2rem; }
+  .rank-card { padding: 0.7rem 0.8rem; gap: 0.6rem; }
+}
+
+@media (max-width: 400px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .stat-card { padding: 0.9rem 0.8rem; gap: 0.6rem; }
+  .stat-val { font-size: 1.5rem; }
+  .stat-icon { width: 40px; height: 40px; font-size: 1.1rem; }
+  .piket-grid { grid-template-columns: 1fr; }
+  .kelas-picker { grid-template-columns: repeat(2, 1fr); }
+  .tab-item { padding: 0.5rem 0.5rem; font-size: 0.7rem; }
+  .topbar-name { font-size: 0.8rem; }
+  .topbar-sub { display: none; }
 }
 @media (max-width: 600px) {
   .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -930,8 +981,8 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 
 <!-- ===== PAGE: GURU PIKET ===== -->
 <div class="page" id="page-piket">
-  <div style="background: linear-gradient(135deg, #c62828, #0277bd); color:white; padding: 1.5rem 2rem; border-bottom: 3px solid var(--gold);">
-    <div style="max-width:1300px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+  <div style="background: linear-gradient(135deg, #c62828, #0277bd); color:white; padding: 1.2rem 0.75rem; border-bottom: 3px solid var(--gold);">
+    <div style="max-width:1300px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; width:100%;">
       <div>
         <div style="font-size:0.65rem; letter-spacing:2px; color:var(--gold); font-weight:800;">HALAMAN GURU PIKET</div>
         <h2 style="font-family:'Sora',sans-serif; font-size:1.3rem; font-weight:800;">Panel Guru Piket</h2>
@@ -1204,7 +1255,7 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 <!-- ===== PAGE: ADMIN ===== -->
 <div class="page" id="page-admin">
   <div style="background: linear-gradient(135deg, #1a0a2e, #2a1060); color:white; padding: 1.5rem 2rem; border-bottom: 3px solid var(--cyan);">
-    <div style="max-width:1300px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+    <div style="max-width:1300px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; width:100%;">
       <div>
         <div style="font-size:0.65rem; letter-spacing:2px; color:var(--cyan); font-weight:800;">HALAMAN ADMINISTRATOR</div>
         <h2 style="font-family:'Sora',sans-serif; font-size:1.3rem; font-weight:800;">Panel Admin</h2>
