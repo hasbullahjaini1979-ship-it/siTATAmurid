@@ -600,27 +600,55 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
   display: none;
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  background: white;
-  border-top: 1px solid var(--border);
+  background: linear-gradient(135deg, #c62828, #01579b);
+  border-top: 3px solid #f9a825;
   z-index: 300;
-  padding: 0.4rem 0 env(safe-area-inset-bottom);
-  box-shadow: 0 -4px 20px rgba(10,22,40,0.12);
+  padding: 0.3rem 0 env(safe-area-inset-bottom);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.35);
 }
-.mobile-nav-inner { display: flex; justify-content: space-around; overflow-x: auto; }
+.mobile-nav-inner {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+}
 .mnav-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 0.5rem 1rem;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 0.45rem 0.5rem;
   background: none; border: none; cursor: pointer;
-  font-size: 0.64rem; font-family: 'Sora', sans-serif; font-weight: 600;
-  color: var(--text3); transition: color 0.2s;
+  font-size: 0.62rem; font-family: 'Sora', sans-serif; font-weight: 700;
+  color: rgba(255,255,255,0.7); transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+  flex: 1;
+  border-radius: 8px;
+  margin: 0 2px;
+}
+.mnav-btn .mni { font-size: 1.4rem; line-height: 1; }
+.mnav-btn.active {
+  color: #f9a825;
+  background: rgba(255,255,255,0.15);
+}
+.mnav-btn:active {
+  transform: scale(0.95);
+  background: rgba(255,255,255,0.2);
+}
+.mnav-link {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 0.45rem 0.5rem;
+  text-decoration: none;
+  font-size: 0.62rem; font-family: 'Sora', sans-serif; font-weight: 700;
+  color: rgba(255,255,255,0.7);
+  flex: 1;
+  border-radius: 8px;
+  margin: 0 2px;
   -webkit-tap-highlight-color: transparent;
 }
-.mnav-btn .mni { font-size: 1.5rem; line-height: 1; }
-.mnav-btn.active { color: var(--blue); }
-@media (max-width: 768px) {
+.mnav-link .mni { font-size: 1.4rem; line-height: 1; }
+.mnav-link:hover { color: #f9a825; background: rgba(255,255,255,0.15); }
+@media (max-width: 900px) {
   .mobile-nav { display: block; }
   .topbar-nav { display: none !important; }
-  body { padding-bottom: 72px; }
+  body { padding-bottom: 76px; }
   .wizard-steps { gap: 0; }
   .wlbl { font-size: 0.58rem; }
 }
@@ -706,18 +734,20 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 <div class="mobile-nav" id="mobileNav">
   <div class="mobile-nav-inner">
     <button class="mnav-btn active" id="mnav_dashboard" onclick="showPage('dashboard'); setMobileNav('dashboard')">
-      <span class="mni">🏠</span>Beranda
+      <span class="mni">🏠</span>
+      <span>Beranda</span>
     </button>
     <button class="mnav-btn" id="mnav_piket" onclick="showPageWithAuth('piket'); setMobileNav('piket')">
-      <span class="mni">📋</span>Piket
+      <span class="mni">📋</span>
+      <span>Guru Piket</span>
     </button>
     <button class="mnav-btn" id="mnav_admin" onclick="showPageWithAuth('admin'); setMobileNav('admin')">
-      <span class="mni">⚙️</span>Admin
+      <span class="mni">⚙️</span>
+      <span>Admin</span>
     </button>
-    <a href="https://hasbullahjaini1979-ship-it.github.io/menutama/" style="text-decoration:none;">
-      <button class="mnav-btn">
-        <span class="mni">🏡</span>Menu
-      </button>
+    <a href="https://hasbullahjaini1979-ship-it.github.io/menutama/" class="mnav-link">
+      <span class="mni">🏡</span>
+      <span>Menu Utama</span>
     </a>
   </div>
 </div>
