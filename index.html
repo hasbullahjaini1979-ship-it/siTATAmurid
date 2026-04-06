@@ -187,6 +187,18 @@ h1,h2,h3,h4,h5 { font-family: 'Sora', sans-serif; }
 .kelas-nama { font-size: 0.78rem; font-weight: 600; color: var(--text2); margin-top: 2px; }
 .kelas-wali { font-size: 0.68rem; color: var(--text3); margin-top: 1px; }
 
+/* ===== 2-COL INPUT FORM RESPONSIVE ===== */
+@media (max-width: 768px) {
+  #piket-pelanggaran > div,
+  #piket-penghargaan > div {
+    grid-template-columns: 1fr !important;
+  }
+  #piket-pelanggaran .section,
+  #piket-penghargaan .section {
+    position: static !important;
+  }
+}
+
 /* ===== SEARCH NIS ===== */
 .nis-search-wrap { display: flex; gap: 0.7rem; }
 .nis-input {
@@ -1005,99 +1017,107 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 
     <!-- Tab: Pelanggaran -->
     <div class="tab-pane active" id="piket-pelanggaran">
-      <div class="section">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.4rem; flex-wrap:wrap; gap:0.6rem;">
-          <div class="section-title">⚠️ Input Pelanggaran Siswa</div>
-          <button class="btn btn-outline btn-sm" onclick="resetPelForm()">↺ Isi Ulang</button>
-        </div>
-        <!-- Step Indicator -->
-        <div class="wizard-steps" id="pel_steps">
-          <div class="wstep active" id="pel_ws1"><span class="wnum">1</span><span class="wlbl">Tanggal</span></div>
-          <div class="wline"></div>
-          <div class="wstep" id="pel_ws2"><span class="wnum">2</span><span class="wlbl">Kelas</span></div>
-          <div class="wline"></div>
-          <div class="wstep" id="pel_ws3"><span class="wnum">3</span><span class="wlbl">Siswa</span></div>
-          <div class="wline"></div>
-          <div class="wstep" id="pel_ws4"><span class="wnum">4</span><span class="wlbl">Kategori</span></div>
-          <div class="wline"></div>
-          <div class="wstep" id="pel_ws5"><span class="wnum">5</span><span class="wlbl">Indikator</span></div>
-          <div class="wline"></div>
-          <div class="wstep" id="pel_ws6"><span class="wnum">6</span><span class="wlbl">Tindakan</span></div>
-        </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; align-items:start;">
 
-        <!-- Step 1: Tanggal -->
-        <div class="wizard-pane active" id="pel_step1">
-          <div class="wiz-header">📅 Langkah 1 — Pilih Tanggal</div>
-          <div class="form-group" style="max-width:320px;">
-            <label>Tanggal Kejadian *</label>
-            <input type="date" class="form-control form-control-lg" id="pel_tgl">
+        <!-- KOLOM KIRI: Data Siswa -->
+        <div class="section" style="position:sticky; top:80px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.2rem; flex-wrap:wrap; gap:0.6rem;">
+            <div>
+              <div class="section-title">👤 Data Siswa</div>
+              <div class="section-sub">Cari & pilih siswa yang melanggar</div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="clearPelSiswaOnly()">↺ Ganti Siswa</button>
           </div>
-          <div class="wiz-nav"><button class="btn btn-primary" onclick="pelNext(1)">Lanjut →</button></div>
-        </div>
 
-        <!-- Step 2: Kelas -->
-        <div class="wizard-pane" id="pel_step2">
-          <div class="wiz-header">🏫 Langkah 2 — Pilih Kelas</div>
-          <div class="kelas-picker" id="pel_kelas_picker"></div>
-          <div class="wiz-nav">
-            <button class="btn btn-outline" onclick="pelBack(2)">← Kembali</button>
+          <!-- Tanggal -->
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label style="font-size:0.78rem; font-weight:600; color:var(--text2);">📅 Tanggal Kejadian *</label>
+            <input type="date" class="form-control" id="pel_tgl">
           </div>
-        </div>
 
-        <!-- Step 3: Siswa -->
-        <div class="wizard-pane" id="pel_step3">
-          <div class="wiz-header">🔍 Langkah 3 — Cari & Pilih Siswa</div>
-          <div class="siswa-search-box">
-            <input type="text" class="form-control" id="pel_siswa_search" placeholder="🔍 Ketik nama siswa..." oninput="searchSiswaWiz('pel')" autocomplete="off">
+          <!-- Search Nama Siswa -->
+          <div style="margin-bottom:0.5rem;">
+            <label style="font-size:0.78rem; font-weight:600; color:var(--text2);">🔍 Cari Siswa by Nama</label>
+          </div>
+          <div class="siswa-search-box" style="margin-bottom:0.8rem;">
+            <input type="text" class="form-control" id="pel_siswa_search" placeholder="🔍 Ketik nama siswa..." oninput="searchSiswaFlatPel()" autocomplete="off">
             <div class="siswa-list" id="pel_siswa_list"></div>
           </div>
           <div class="selected-siswa-card" id="pel_siswa_card" style="display:none;"></div>
-          <!-- hidden value holder -->
           <input type="hidden" id="pel_siswa">
-          <div class="wiz-nav">
-            <button class="btn btn-outline" onclick="pelBack(3)">← Kembali</button>
-            <button class="btn btn-primary" id="pel_btn_next3" onclick="pelNext(3)" style="display:none;">Lanjut →</button>
+
+          <!-- Kelas Filter (opsional) -->
+          <div class="form-group" style="margin-top:0.8rem;">
+            <label style="font-size:0.75rem; color:var(--text3);">Filter Kelas (opsional)</label>
+            <select class="form-control" id="pel_kelas_filter" onchange="searchSiswaFlatPel()" style="font-size:0.85rem;">
+              <option value="">-- Semua Kelas --</option>
+            </select>
+          </div>
+
+          <!-- Info siswa terpilih -->
+          <div id="pel_siswa_info_box" style="display:none; margin-top:1rem; background:linear-gradient(135deg,#fff3f3,#fff8e1); border:1.5px solid #ffcdd2; border-radius:12px; padding:1rem;">
+            <div style="font-size:0.72rem; color:var(--text3); margin-bottom:0.4rem; font-weight:600;">SISWA DIPILIH</div>
+            <div id="pel_siswa_info_nama" style="font-family:'Sora',sans-serif; font-weight:800; font-size:1rem; color:var(--navy);"></div>
+            <div id="pel_siswa_info_detail" style="font-size:0.8rem; color:var(--text2); margin-top:2px;"></div>
           </div>
         </div>
 
-        <!-- Step 4: Kategori -->
-        <div class="wizard-pane" id="pel_step4">
-          <div class="wiz-header">🗂️ Langkah 4 — Pilih Kategori Pelanggaran</div>
-          <div class="kat-picker" id="pel_kat_picker"></div>
-          <div class="wiz-nav"><button class="btn btn-outline" onclick="pelBack(4)">← Kembali</button></div>
-        </div>
+        <!-- KOLOM KANAN: Data Pelanggaran -->
+        <div class="section">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.2rem; flex-wrap:wrap; gap:0.6rem;">
+            <div>
+              <div class="section-title">⚠️ Data Pelanggaran</div>
+              <div class="section-sub">Pilih & isi detail pelanggaran</div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="clearPelItemOnly()">↺ Ganti Pelanggaran</button>
+          </div>
 
-        <!-- Step 5: Indikator -->
-        <div class="wizard-pane" id="pel_step5">
-          <div class="wiz-header">⚠️ Langkah 5 — Pilih Indikator Pelanggaran</div>
-          <div class="indikator-list" id="pel_indikator_list"></div>
-          <!-- hidden -->
+          <!-- Search Nama Pelanggaran -->
+          <div style="margin-bottom:0.5rem;">
+            <label style="font-size:0.78rem; font-weight:600; color:var(--text2);">🔍 Cari Pelanggaran by Nama</label>
+          </div>
+          <div class="siswa-search-box" style="margin-bottom:0.8rem;">
+            <input type="text" class="form-control" id="pel_item_search" placeholder="🔍 Ketik nama pelanggaran..." oninput="searchItemFlatPel()" autocomplete="off">
+            <div class="siswa-list" id="pel_item_list"></div>
+          </div>
+
+          <!-- Kategori Filter -->
+          <div class="form-group" style="margin-bottom:0.8rem;">
+            <label style="font-size:0.75rem; color:var(--text3);">Filter Kategori</label>
+            <select class="form-control" id="pel_kat_filter" onchange="filterPelKatFlat()" style="font-size:0.85rem;">
+              <option value="">-- Semua Kategori --</option>
+            </select>
+          </div>
+
+          <!-- List Indikator Pelanggaran -->
+          <div id="pel_indikator_flat" style="display:flex; flex-direction:column; gap:0.5rem; max-height:220px; overflow-y:auto; margin-bottom:0.8rem; padding-right:2px;"></div>
           <input type="hidden" id="pel_item">
-          <div class="wiz-nav">
-            <button class="btn btn-outline" onclick="pelBack(5)">← Kembali</button>
-            <button class="btn btn-primary" id="pel_btn_next5" onclick="pelNext(5)" style="display:none;">Lanjut →</button>
-          </div>
-        </div>
 
-        <!-- Step 6: Tindakan & Guru -->
-        <div class="wizard-pane" id="pel_step6">
-          <div class="wiz-header">✍️ Langkah 6 — Tindakan Guru Piket</div>
-          <div class="summary-card" id="pel_summary"></div>
-          <div class="form-grid" style="grid-template-columns: 1fr; gap:0.8rem; margin-top:1rem;">
-            <div class="form-group">
-              <label>Guru Piket</label>
-              <select class="form-control" id="pel_guru">
-                <option value="">-- Pilih Guru (Opsional) --</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Tindakan Guru Piket *</label>
-              <textarea class="form-control" id="pel_tindakan" rows="4" placeholder="Deskripsikan tindakan yang dilakukan guru piket..."></textarea>
-            </div>
+          <!-- Pelanggaran terpilih -->
+          <div id="pel_item_info_box" style="display:none; background:linear-gradient(135deg,#fff3f3,#ffe0e0); border:1.5px solid #ef9a9a; border-radius:12px; padding:1rem; margin-bottom:1rem;">
+            <div style="font-size:0.72rem; color:var(--text3); margin-bottom:0.4rem; font-weight:600;">PELANGGARAN DIPILIH</div>
+            <div id="pel_item_info_nama" style="font-family:'Sora',sans-serif; font-weight:800; font-size:0.95rem; color:var(--red);"></div>
+            <div id="pel_item_info_detail" style="font-size:0.8rem; color:var(--text2); margin-top:2px;"></div>
           </div>
-          <div class="wiz-nav">
-            <button class="btn btn-outline" onclick="pelBack(6)">← Kembali</button>
-            <button class="btn btn-danger" onclick="submitPelanggaran()">💾 Simpan Pelanggaran</button>
+
+          <!-- Guru & Tindakan -->
+          <div class="form-group" style="margin-bottom:0.8rem;">
+            <label>Guru Piket</label>
+            <select class="form-control" id="pel_guru">
+              <option value="">-- Pilih Guru (Opsional) --</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label>Tindakan Guru Piket *</label>
+            <textarea class="form-control" id="pel_tindakan" rows="3" placeholder="Deskripsikan tindakan yang dilakukan..."></textarea>
+          </div>
+
+          <!-- Tombol Simpan -->
+          <button class="btn btn-danger" onclick="submitPelanggaran()" style="width:100%; padding:0.8rem; font-size:0.95rem; justify-content:center;">
+            💾 Simpan Pelanggaran
+          </button>
+          <div style="font-size:0.72rem; color:var(--text3); text-align:center; margin-top:0.5rem;">
+            ℹ️ Setelah disimpan, data siswa akan direset — data pelanggaran tetap untuk input siswa berikutnya
           </div>
         </div>
       </div>
@@ -1105,95 +1125,107 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 
     <!-- Tab: Penghargaan -->
     <div class="tab-pane" id="piket-penghargaan">
-      <div class="section">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.4rem; flex-wrap:wrap; gap:0.6rem;">
-          <div class="section-title">🏆 Input Penghargaan Siswa</div>
-          <button class="btn btn-outline btn-sm" onclick="resetPghForm()">↺ Isi Ulang</button>
-        </div>
-        <!-- Step Indicator -->
-        <div class="wizard-steps" id="pgh_steps">
-          <div class="wstep active" id="pgh_ws1"><span class="wnum">1</span><span class="wlbl">Tanggal</span></div>
-          <div class="wline"></div>
-          <div class="wstep" id="pgh_ws2"><span class="wnum">2</span><span class="wlbl">Kelas</span></div>
-          <div class="wline"></div>
-          <div class="wstep" id="pgh_ws3"><span class="wnum">3</span><span class="wlbl">Siswa</span></div>
-          <div class="wline"></div>
-          <div class="wstep" id="pgh_ws4"><span class="wnum">4</span><span class="wlbl">Kategori</span></div>
-          <div class="wline"></div>
-          <div class="wstep" id="pgh_ws5"><span class="wnum">5</span><span class="wlbl">Indikator</span></div>
-          <div class="wline"></div>
-          <div class="wstep" id="pgh_ws6"><span class="wnum">6</span><span class="wlbl">Keterangan</span></div>
-        </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; align-items:start;">
 
-        <!-- Step 1 -->
-        <div class="wizard-pane active" id="pgh_step1">
-          <div class="wiz-header" style="color:var(--green);">📅 Langkah 1 — Pilih Tanggal</div>
-          <div class="form-group" style="max-width:320px;">
-            <label>Tanggal Kejadian *</label>
-            <input type="date" class="form-control form-control-lg" id="pgh_tgl">
+        <!-- KOLOM KIRI: Data Siswa -->
+        <div class="section" style="position:sticky; top:80px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.2rem; flex-wrap:wrap; gap:0.6rem;">
+            <div>
+              <div class="section-title">👤 Data Siswa</div>
+              <div class="section-sub">Cari & pilih siswa yang berprestasi</div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="clearPghSiswaOnly()">↺ Ganti Siswa</button>
           </div>
-          <div class="wiz-nav"><button class="btn btn-success" onclick="pghNext(1)">Lanjut →</button></div>
-        </div>
 
-        <!-- Step 2 -->
-        <div class="wizard-pane" id="pgh_step2">
-          <div class="wiz-header" style="color:var(--green);">🏫 Langkah 2 — Pilih Kelas</div>
-          <div class="kelas-picker" id="pgh_kelas_picker"></div>
-          <div class="wiz-nav"><button class="btn btn-outline" onclick="pghBack(2)">← Kembali</button></div>
-        </div>
+          <!-- Tanggal -->
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label style="font-size:0.78rem; font-weight:600; color:var(--text2);">📅 Tanggal Kejadian *</label>
+            <input type="date" class="form-control" id="pgh_tgl">
+          </div>
 
-        <!-- Step 3 -->
-        <div class="wizard-pane" id="pgh_step3">
-          <div class="wiz-header" style="color:var(--green);">🔍 Langkah 3 — Cari & Pilih Siswa</div>
-          <div class="siswa-search-box">
-            <input type="text" class="form-control" id="pgh_siswa_search" placeholder="🔍 Ketik nama siswa..." oninput="searchSiswaWiz('pgh')" autocomplete="off">
+          <!-- Search Nama Siswa -->
+          <div style="margin-bottom:0.5rem;">
+            <label style="font-size:0.78rem; font-weight:600; color:var(--text2);">🔍 Cari Siswa by Nama</label>
+          </div>
+          <div class="siswa-search-box" style="margin-bottom:0.8rem;">
+            <input type="text" class="form-control" id="pgh_siswa_search" placeholder="🔍 Ketik nama siswa..." oninput="searchSiswaFlatPgh()" autocomplete="off">
             <div class="siswa-list" id="pgh_siswa_list"></div>
           </div>
           <div class="selected-siswa-card" id="pgh_siswa_card" style="display:none;"></div>
           <input type="hidden" id="pgh_siswa">
-          <div class="wiz-nav">
-            <button class="btn btn-outline" onclick="pghBack(3)">← Kembali</button>
-            <button class="btn btn-success" id="pgh_btn_next3" onclick="pghNext(3)" style="display:none;">Lanjut →</button>
+
+          <!-- Kelas Filter (opsional) -->
+          <div class="form-group" style="margin-top:0.8rem;">
+            <label style="font-size:0.75rem; color:var(--text3);">Filter Kelas (opsional)</label>
+            <select class="form-control" id="pgh_kelas_filter" onchange="searchSiswaFlatPgh()" style="font-size:0.85rem;">
+              <option value="">-- Semua Kelas --</option>
+            </select>
+          </div>
+
+          <!-- Info siswa terpilih -->
+          <div id="pgh_siswa_info_box" style="display:none; margin-top:1rem; background:linear-gradient(135deg,#f1f8e9,#e8f5e9); border:1.5px solid #a5d6a7; border-radius:12px; padding:1rem;">
+            <div style="font-size:0.72rem; color:var(--text3); margin-bottom:0.4rem; font-weight:600;">SISWA DIPILIH</div>
+            <div id="pgh_siswa_info_nama" style="font-family:'Sora',sans-serif; font-weight:800; font-size:1rem; color:var(--green);"></div>
+            <div id="pgh_siswa_info_detail" style="font-size:0.8rem; color:var(--text2); margin-top:2px;"></div>
           </div>
         </div>
 
-        <!-- Step 4 -->
-        <div class="wizard-pane" id="pgh_step4">
-          <div class="wiz-header" style="color:var(--green);">🗂️ Langkah 4 — Pilih Kategori Penghargaan</div>
-          <div class="kat-picker" id="pgh_kat_picker"></div>
-          <div class="wiz-nav"><button class="btn btn-outline" onclick="pghBack(4)">← Kembali</button></div>
-        </div>
+        <!-- KOLOM KANAN: Data Penghargaan -->
+        <div class="section">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.2rem; flex-wrap:wrap; gap:0.6rem;">
+            <div>
+              <div class="section-title">🏆 Data Penghargaan</div>
+              <div class="section-sub">Pilih & isi detail penghargaan</div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="clearPghItemOnly()">↺ Ganti Penghargaan</button>
+          </div>
 
-        <!-- Step 5 -->
-        <div class="wizard-pane" id="pgh_step5">
-          <div class="wiz-header" style="color:var(--green);">🏆 Langkah 5 — Pilih Indikator Penghargaan</div>
-          <div class="indikator-list" id="pgh_indikator_list"></div>
+          <!-- Search Nama Penghargaan -->
+          <div style="margin-bottom:0.5rem;">
+            <label style="font-size:0.78rem; font-weight:600; color:var(--text2);">🔍 Cari Penghargaan by Nama</label>
+          </div>
+          <div class="siswa-search-box" style="margin-bottom:0.8rem;">
+            <input type="text" class="form-control" id="pgh_item_search" placeholder="🔍 Ketik nama penghargaan..." oninput="searchItemFlatPgh()" autocomplete="off">
+            <div class="siswa-list" id="pgh_item_list"></div>
+          </div>
+
+          <!-- Kategori Filter -->
+          <div class="form-group" style="margin-bottom:0.8rem;">
+            <label style="font-size:0.75rem; color:var(--text3);">Filter Kategori</label>
+            <select class="form-control" id="pgh_kat_filter" onchange="filterPghKatFlat()" style="font-size:0.85rem;">
+              <option value="">-- Semua Kategori --</option>
+            </select>
+          </div>
+
+          <!-- List Indikator Penghargaan -->
+          <div id="pgh_indikator_flat" style="display:flex; flex-direction:column; gap:0.5rem; max-height:220px; overflow-y:auto; margin-bottom:0.8rem; padding-right:2px;"></div>
           <input type="hidden" id="pgh_item">
-          <div class="wiz-nav">
-            <button class="btn btn-outline" onclick="pghBack(5)">← Kembali</button>
-            <button class="btn btn-success" id="pgh_btn_next5" onclick="pghNext(5)" style="display:none;">Lanjut →</button>
-          </div>
-        </div>
 
-        <!-- Step 6 -->
-        <div class="wizard-pane" id="pgh_step6">
-          <div class="wiz-header" style="color:var(--green);">✍️ Langkah 6 — Keterangan & Pemberi</div>
-          <div class="summary-card" id="pgh_summary"></div>
-          <div class="form-grid" style="grid-template-columns: 1fr; gap:0.8rem; margin-top:1rem;">
-            <div class="form-group">
-              <label>Pemberi Penghargaan</label>
-              <select class="form-control" id="pgh_guru">
-                <option value="">-- Pilih Guru (Opsional) --</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Keterangan</label>
-              <textarea class="form-control" id="pgh_keterangan" rows="4" placeholder="Keterangan tambahan..."></textarea>
-            </div>
+          <!-- Penghargaan terpilih -->
+          <div id="pgh_item_info_box" style="display:none; background:linear-gradient(135deg,#f1f8e9,#e0f2f1); border:1.5px solid #80cbc4; border-radius:12px; padding:1rem; margin-bottom:1rem;">
+            <div style="font-size:0.72rem; color:var(--text3); margin-bottom:0.4rem; font-weight:600;">PENGHARGAAN DIPILIH</div>
+            <div id="pgh_item_info_nama" style="font-family:'Sora',sans-serif; font-weight:800; font-size:0.95rem; color:var(--green);"></div>
+            <div id="pgh_item_info_detail" style="font-size:0.8rem; color:var(--text2); margin-top:2px;"></div>
           </div>
-          <div class="wiz-nav">
-            <button class="btn btn-outline" onclick="pghBack(6)">← Kembali</button>
-            <button class="btn btn-success" onclick="submitPenghargaan()">💾 Simpan Penghargaan</button>
+
+          <!-- Guru & Keterangan -->
+          <div class="form-group" style="margin-bottom:0.8rem;">
+            <label>Pemberi Penghargaan</label>
+            <select class="form-control" id="pgh_guru">
+              <option value="">-- Pilih Guru (Opsional) --</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label>Keterangan</label>
+            <textarea class="form-control" id="pgh_keterangan" rows="3" placeholder="Keterangan tambahan..."></textarea>
+          </div>
+
+          <!-- Tombol Simpan -->
+          <button class="btn btn-success" onclick="submitPenghargaan()" style="width:100%; padding:0.8rem; font-size:0.95rem; justify-content:center;">
+            💾 Simpan Penghargaan
+          </button>
+          <div style="font-size:0.72rem; color:var(--text3); text-align:center; margin-top:0.5rem;">
+            ℹ️ Setelah disimpan, data siswa akan direset — data penghargaan tetap untuk input siswa berikutnya
           </div>
         </div>
       </div>
@@ -2440,7 +2472,8 @@ async function submitPelanggaran() {
   const ok = await pushToGS('addLog', { log });
   hideLoading();
   toast(ok ? '✅ Pelanggaran berhasil disimpan' : '💾 Tersimpan lokal (GS tidak terhubung)', ok ? 'success' : 'info');
-  resetPelForm();
+  // Hanya clear kolom siswa, pelanggaran tetap
+  clearPelSiswaOnly();
   loadUIFromDB();
 }
 
@@ -2461,7 +2494,8 @@ async function submitPenghargaan() {
   const ok = await pushToGS('addLog', { log });
   hideLoading();
   toast(ok ? '✅ Penghargaan berhasil disimpan' : '💾 Tersimpan lokal (GS tidak terhubung)', ok ? 'success' : 'info');
-  resetPghForm();
+  // Hanya clear kolom siswa, penghargaan tetap
+  clearPghSiswaOnly();
   loadUIFromDB();
 }
 
@@ -2473,11 +2507,15 @@ function resetPelForm() {
   const sc = document.getElementById('pel_siswa_card'); if(sc) sc.style.display='none';
   const sl = document.getElementById('pel_siswa_list'); if(sl) sl.classList.remove('show');
   const ss = document.getElementById('pel_siswa_search'); if(ss) ss.value='';
-  document.getElementById('pel_btn_next3').style.display = 'none';
-  document.getElementById('pel_btn_next5').style.display = 'none';
+  // reset 2-col UI
+  const iib = document.getElementById('pel_siswa_info_box'); if(iib) iib.style.display='none';
+  const pib = document.getElementById('pel_item_info_box'); if(pib) pib.style.display='none';
+  const isrch = document.getElementById('pel_item_search'); if(isrch) isrch.value='';
+  const il = document.getElementById('pel_item_list'); if(il) il.classList.remove('show');
   setTodayDates();
-  pelShowStep(1);
+  initPelFlatUI();
 }
+
 function resetPghForm() {
   pghState.step = 1; pghState.kelas = ''; pghState.siswaIdx = ''; pghState.itemIdx = ''; pghState.kategori = '';
   document.getElementById('pgh_siswa').value = '';
@@ -2486,10 +2524,290 @@ function resetPghForm() {
   const sc = document.getElementById('pgh_siswa_card'); if(sc) sc.style.display='none';
   const sl = document.getElementById('pgh_siswa_list'); if(sl) sl.classList.remove('show');
   const ss = document.getElementById('pgh_siswa_search'); if(ss) ss.value='';
-  document.getElementById('pgh_btn_next3').style.display = 'none';
-  document.getElementById('pgh_btn_next5').style.display = 'none';
+  // reset 2-col UI
+  const iib = document.getElementById('pgh_siswa_info_box'); if(iib) iib.style.display='none';
+  const pib = document.getElementById('pgh_item_info_box'); if(pib) pib.style.display='none';
+  const isrch = document.getElementById('pgh_item_search'); if(isrch) isrch.value='';
+  const il = document.getElementById('pgh_item_list'); if(il) il.classList.remove('show');
   setTodayDates();
-  pghShowStep(1);
+  initPghFlatUI();
+}
+
+// ============================================================
+// 2-COLUMN FLAT UI: PELANGGARAN
+// ============================================================
+function initPelFlatUI() {
+  // Isi filter kelas
+  const kf = document.getElementById('pel_kelas_filter');
+  if(kf) {
+    kf.innerHTML = '<option value="">-- Semua Kelas --</option>' + DB.kelas.map(k=>`<option value="${k.nama}">${k.nama}</option>`).join('');
+  }
+  // Isi filter kategori
+  const katf = document.getElementById('pel_kat_filter');
+  if(katf) {
+    const kats = [...new Set(DB.pelanggaran.map(p=>p.kategori||'Umum'))];
+    katf.innerHTML = '<option value="">-- Semua Kategori --</option>' + kats.map(k=>`<option value="${k}">${k}</option>`).join('');
+  }
+  // Render semua indikator
+  renderPelIndikatorFlat('');
+  // Isi guru
+  fillGuruSelect('pel_guru');
+}
+
+function renderPelIndikatorFlat(katFilter) {
+  const q = (document.getElementById('pel_item_search')?.value||'').trim().toLowerCase();
+  const list = document.getElementById('pel_indikator_flat');
+  if(!list) return;
+  let items = DB.pelanggaran;
+  if(katFilter) items = items.filter(p=>(p.kategori||'Umum')===katFilter);
+  if(q) items = items.filter(p=>(p.indikator||p.text||'').toLowerCase().includes(q));
+  if(items.length === 0) {
+    list.innerHTML = '<div style="color:var(--text3);font-size:0.85rem;padding:0.8rem;text-align:center;">Tidak ada indikator ditemukan</div>';
+    return;
+  }
+  list.innerHTML = items.map(p=>{
+    const idx = DB.pelanggaran.indexOf(p);
+    const selected = pelState.itemIdx === idx;
+    return `<button onclick="selectPelItemFlat(${idx}, this)" style="display:flex;align-items:center;justify-content:space-between;gap:0.8rem;padding:0.7rem 1rem;border-radius:10px;border:1.5px solid ${selected?'var(--red)':'var(--border)'};background:${selected?'#fff3f3':'#f8faff'};cursor:pointer;text-align:left;transition:all 0.2s;width:100%;">
+      <span style="font-size:0.85rem;font-weight:${selected?'700':'500'};color:${selected?'var(--red)':'var(--text)'};">${p.indikator||p.text}</span>
+      <span style="font-size:0.78rem;font-weight:700;color:var(--red);white-space:nowrap;background:#ffe0e0;padding:2px 8px;border-radius:20px;">-${p.poin}</span>
+    </button>`;
+  }).join('');
+}
+
+function filterPelKatFlat() {
+  const kat = document.getElementById('pel_kat_filter')?.value||'';
+  renderPelIndikatorFlat(kat);
+}
+
+function searchItemFlatPel() {
+  const q = (document.getElementById('pel_item_search')?.value||'').trim().toLowerCase();
+  const listEl = document.getElementById('pel_item_list');
+  if(!q) { listEl.classList.remove('show'); renderPelIndikatorFlat(document.getElementById('pel_kat_filter')?.value||''); return; }
+  const matches = DB.pelanggaran.filter(p=>(p.indikator||p.text||'').toLowerCase().includes(q)).slice(0,8);
+  if(matches.length===0) {
+    listEl.innerHTML = `<div class="sli-empty">Tidak ditemukan: "${q}"</div>`;
+  } else {
+    listEl.innerHTML = matches.map(p=>{
+      const idx = DB.pelanggaran.indexOf(p);
+      return `<div class="siswa-list-item" onclick="selectPelItemFlat(${idx})">
+        <div class="sli-avatar" style="background:linear-gradient(135deg,#c62828,#8b0000);">⚠️</div>
+        <div><div class="sli-name">${p.indikator||p.text}</div><div class="sli-info">${p.kategori||'Umum'} · Poin: -${p.poin}</div></div>
+      </div>`;
+    }).join('');
+  }
+  listEl.classList.add('show');
+}
+
+function selectPelItemFlat(idx, btn) {
+  pelState.itemIdx = idx;
+  document.getElementById('pel_item').value = idx;
+  const p = DB.pelanggaran[idx];
+  document.getElementById('pel_item_info_box').style.display = 'block';
+  document.getElementById('pel_item_info_nama').textContent = p.indikator||p.text;
+  document.getElementById('pel_item_info_detail').textContent = `Kategori: ${p.kategori||'Umum'} · Poin: -${p.poin}`;
+  const il = document.getElementById('pel_item_list'); if(il) il.classList.remove('show');
+  const isrch = document.getElementById('pel_item_search'); if(isrch) isrch.value='';
+  renderPelIndikatorFlat(document.getElementById('pel_kat_filter')?.value||'');
+}
+
+function clearPelItemOnly() {
+  pelState.itemIdx = '';
+  document.getElementById('pel_item').value = '';
+  const pib = document.getElementById('pel_item_info_box'); if(pib) pib.style.display='none';
+  const isrch = document.getElementById('pel_item_search'); if(isrch) isrch.value='';
+  renderPelIndikatorFlat(document.getElementById('pel_kat_filter')?.value||'');
+}
+
+function clearPelSiswaOnly() {
+  pelState.siswaIdx = '';
+  pelState.kelas = '';
+  document.getElementById('pel_siswa').value = '';
+  const sc = document.getElementById('pel_siswa_card'); if(sc) sc.style.display='none';
+  const sl = document.getElementById('pel_siswa_list'); if(sl) sl.classList.remove('show');
+  const ss = document.getElementById('pel_siswa_search'); if(ss) ss.value='';
+  const iib = document.getElementById('pel_siswa_info_box'); if(iib) iib.style.display='none';
+  const kf = document.getElementById('pel_kelas_filter'); if(kf) kf.value='';
+  setTodayDates();
+}
+
+function searchSiswaFlatPel() {
+  const q = (document.getElementById('pel_siswa_search')?.value||'').trim().toLowerCase();
+  const kelas = document.getElementById('pel_kelas_filter')?.value||'';
+  const listEl = document.getElementById('pel_siswa_list');
+  const pool = kelas ? DB.siswa.filter(s=>s.kelas===kelas) : DB.siswa;
+  if(!q) { listEl.classList.remove('show'); return; }
+  const matches = pool.filter(s=>s.nama.toLowerCase().includes(q)).slice(0,8);
+  if(matches.length===0) {
+    listEl.innerHTML = `<div class="sli-empty">Tidak ada siswa: "${q}"</div>`;
+  } else {
+    listEl.innerHTML = matches.map(s=>{
+      const idx = DB.siswa.indexOf(s);
+      const initials = s.nama.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();
+      return `<div class="siswa-list-item" onclick="selectSiswaFlatPel(${idx})">
+        <div class="sli-avatar">${initials}</div>
+        <div><div class="sli-name">${s.nama}</div><div class="sli-info">${s.kelas} · NIS: ${s.nis}</div></div>
+      </div>`;
+    }).join('');
+  }
+  listEl.classList.add('show');
+}
+
+function selectSiswaFlatPel(idx) {
+  const s = DB.siswa[idx];
+  if(!s) return;
+  pelState.siswaIdx = idx;
+  pelState.kelas = s.kelas;
+  document.getElementById('pel_siswa').value = idx;
+  document.getElementById('pel_siswa_info_box').style.display = 'block';
+  document.getElementById('pel_siswa_info_nama').textContent = s.nama;
+  document.getElementById('pel_siswa_info_detail').textContent = `Kelas: ${s.kelas} · NIS: ${s.nis}`;
+  const sl = document.getElementById('pel_siswa_list'); if(sl) sl.classList.remove('show');
+  const ss = document.getElementById('pel_siswa_search'); if(ss) ss.value='';
+  // Update card juga
+  const initials = s.nama.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();
+  const card = document.getElementById('pel_siswa_card');
+  card.innerHTML = `
+    <div class="ssc-avatar">${initials}</div>
+    <div><div class="ssc-name">${s.nama}</div><div class="ssc-info">Kelas ${s.kelas} &bull; NIS: ${s.nis}</div></div>
+    <span class="ssc-change" onclick="clearPelSiswaOnly()">Ganti Siswa</span>`;
+  card.style.display = 'flex';
+}
+
+// ============================================================
+// 2-COLUMN FLAT UI: PENGHARGAAN
+// ============================================================
+function initPghFlatUI() {
+  const kf = document.getElementById('pgh_kelas_filter');
+  if(kf) {
+    kf.innerHTML = '<option value="">-- Semua Kelas --</option>' + DB.kelas.map(k=>`<option value="${k.nama}">${k.nama}</option>`).join('');
+  }
+  const katf = document.getElementById('pgh_kat_filter');
+  if(katf) {
+    const kats = [...new Set(DB.penghargaan.map(p=>p.kategori||'Umum'))];
+    katf.innerHTML = '<option value="">-- Semua Kategori --</option>' + kats.map(k=>`<option value="${k}">${k}</option>`).join('');
+  }
+  renderPghIndikatorFlat('');
+  fillGuruSelect('pgh_guru');
+}
+
+function renderPghIndikatorFlat(katFilter) {
+  const q = (document.getElementById('pgh_item_search')?.value||'').trim().toLowerCase();
+  const list = document.getElementById('pgh_indikator_flat');
+  if(!list) return;
+  let items = DB.penghargaan;
+  if(katFilter) items = items.filter(p=>(p.kategori||'Umum')===katFilter);
+  if(q) items = items.filter(p=>(p.indikator||p.text||'').toLowerCase().includes(q));
+  if(items.length===0) {
+    list.innerHTML = '<div style="color:var(--text3);font-size:0.85rem;padding:0.8rem;text-align:center;">Tidak ada indikator ditemukan</div>';
+    return;
+  }
+  list.innerHTML = items.map(p=>{
+    const idx = DB.penghargaan.indexOf(p);
+    const selected = pghState.itemIdx === idx;
+    return `<button onclick="selectPghItemFlat(${idx}, this)" style="display:flex;align-items:center;justify-content:space-between;gap:0.8rem;padding:0.7rem 1rem;border-radius:10px;border:1.5px solid ${selected?'var(--green)':'var(--border)'};background:${selected?'#f1f8e9':'#f8faff'};cursor:pointer;text-align:left;transition:all 0.2s;width:100%;">
+      <span style="font-size:0.85rem;font-weight:${selected?'700':'500'};color:${selected?'var(--green)':'var(--text)'};">${p.indikator||p.text}</span>
+      <span style="font-size:0.78rem;font-weight:700;color:var(--green);white-space:nowrap;background:#e8f5e9;padding:2px 8px;border-radius:20px;">+${p.poin}</span>
+    </button>`;
+  }).join('');
+}
+
+function filterPghKatFlat() {
+  const kat = document.getElementById('pgh_kat_filter')?.value||'';
+  renderPghIndikatorFlat(kat);
+}
+
+function searchItemFlatPgh() {
+  const q = (document.getElementById('pgh_item_search')?.value||'').trim().toLowerCase();
+  const listEl = document.getElementById('pgh_item_list');
+  if(!q) { listEl.classList.remove('show'); renderPghIndikatorFlat(document.getElementById('pgh_kat_filter')?.value||''); return; }
+  const matches = DB.penghargaan.filter(p=>(p.indikator||p.text||'').toLowerCase().includes(q)).slice(0,8);
+  if(matches.length===0) {
+    listEl.innerHTML = `<div class="sli-empty">Tidak ditemukan: "${q}"</div>`;
+  } else {
+    listEl.innerHTML = matches.map(p=>{
+      const idx = DB.penghargaan.indexOf(p);
+      return `<div class="siswa-list-item" onclick="selectPghItemFlat(${idx})">
+        <div class="sli-avatar" style="background:linear-gradient(135deg,#2e7d32,#388e3c);">🏆</div>
+        <div><div class="sli-name">${p.indikator||p.text}</div><div class="sli-info">${p.kategori||'Umum'} · Poin: +${p.poin}</div></div>
+      </div>`;
+    }).join('');
+  }
+  listEl.classList.add('show');
+}
+
+function selectPghItemFlat(idx, btn) {
+  pghState.itemIdx = idx;
+  document.getElementById('pgh_item').value = idx;
+  const p = DB.penghargaan[idx];
+  document.getElementById('pgh_item_info_box').style.display = 'block';
+  document.getElementById('pgh_item_info_nama').textContent = p.indikator||p.text;
+  document.getElementById('pgh_item_info_detail').textContent = `Kategori: ${p.kategori||'Umum'} · Poin: +${p.poin}`;
+  const il = document.getElementById('pgh_item_list'); if(il) il.classList.remove('show');
+  const isrch = document.getElementById('pgh_item_search'); if(isrch) isrch.value='';
+  renderPghIndikatorFlat(document.getElementById('pgh_kat_filter')?.value||'');
+}
+
+function clearPghItemOnly() {
+  pghState.itemIdx = '';
+  document.getElementById('pgh_item').value = '';
+  const pib = document.getElementById('pgh_item_info_box'); if(pib) pib.style.display='none';
+  const isrch = document.getElementById('pgh_item_search'); if(isrch) isrch.value='';
+  renderPghIndikatorFlat(document.getElementById('pgh_kat_filter')?.value||'');
+}
+
+function clearPghSiswaOnly() {
+  pghState.siswaIdx = '';
+  pghState.kelas = '';
+  document.getElementById('pgh_siswa').value = '';
+  const sc = document.getElementById('pgh_siswa_card'); if(sc) sc.style.display='none';
+  const sl = document.getElementById('pgh_siswa_list'); if(sl) sl.classList.remove('show');
+  const ss = document.getElementById('pgh_siswa_search'); if(ss) ss.value='';
+  const iib = document.getElementById('pgh_siswa_info_box'); if(iib) iib.style.display='none';
+  const kf = document.getElementById('pgh_kelas_filter'); if(kf) kf.value='';
+  setTodayDates();
+}
+
+function searchSiswaFlatPgh() {
+  const q = (document.getElementById('pgh_siswa_search')?.value||'').trim().toLowerCase();
+  const kelas = document.getElementById('pgh_kelas_filter')?.value||'';
+  const listEl = document.getElementById('pgh_siswa_list');
+  const pool = kelas ? DB.siswa.filter(s=>s.kelas===kelas) : DB.siswa;
+  if(!q) { listEl.classList.remove('show'); return; }
+  const matches = pool.filter(s=>s.nama.toLowerCase().includes(q)).slice(0,8);
+  if(matches.length===0) {
+    listEl.innerHTML = `<div class="sli-empty">Tidak ada siswa: "${q}"</div>`;
+  } else {
+    listEl.innerHTML = matches.map(s=>{
+      const idx = DB.siswa.indexOf(s);
+      const initials = s.nama.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();
+      return `<div class="siswa-list-item" onclick="selectSiswaFlatPgh(${idx})">
+        <div class="sli-avatar">${initials}</div>
+        <div><div class="sli-name">${s.nama}</div><div class="sli-info">${s.kelas} · NIS: ${s.nis}</div></div>
+      </div>`;
+    }).join('');
+  }
+  listEl.classList.add('show');
+}
+
+function selectSiswaFlatPgh(idx) {
+  const s = DB.siswa[idx];
+  if(!s) return;
+  pghState.siswaIdx = idx;
+  pghState.kelas = s.kelas;
+  document.getElementById('pgh_siswa').value = idx;
+  document.getElementById('pgh_siswa_info_box').style.display = 'block';
+  document.getElementById('pgh_siswa_info_nama').textContent = s.nama;
+  document.getElementById('pgh_siswa_info_detail').textContent = `Kelas: ${s.kelas} · NIS: ${s.nis}`;
+  const sl = document.getElementById('pgh_siswa_list'); if(sl) sl.classList.remove('show');
+  const ss = document.getElementById('pgh_siswa_search'); if(ss) ss.value='';
+  const initials = s.nama.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();
+  const card = document.getElementById('pgh_siswa_card');
+  card.innerHTML = `
+    <div class="ssc-avatar">${initials}</div>
+    <div><div class="ssc-name">${s.nama}</div><div class="ssc-info">Kelas ${s.kelas} &bull; NIS: ${s.nis}</div></div>
+    <span class="ssc-change" onclick="clearPghSiswaOnly()">Ganti Siswa</span>`;
+  card.style.display = 'flex';
 }
 
 // ============================================================
@@ -2961,6 +3279,8 @@ function showPage(page) {
     fillFormOptions();
     resetPelForm();
     resetPghForm();
+    initPelFlatUI();
+    initPghFlatUI();
   }
   if (page === 'admin') {
     renderAdminAll();
@@ -3008,6 +3328,8 @@ function switchPiketTab(tab) {
   document.getElementById('piket-'+tab)?.classList.add('active');
   if (tab === 'ranking') renderRanking();
   if (tab === 'cetak') { fillFormOptions(); }
+  if (tab === 'pelanggaran') { setTimeout(()=>{initPelFlatUI();},50); }
+  if (tab === 'penghargaan') { setTimeout(()=>{initPghFlatUI();},50); }
 }
 
 function switchAdminTab(tab) {
