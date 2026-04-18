@@ -1357,7 +1357,7 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
         <p style="font-size:0.82rem; color:var(--text3); margin-bottom:1rem;">Hubungkan aplikasi ke Google Sheets sebagai database. Gunakan Google Apps Script sebagai backend API.</p>
         <div class="form-group" style="max-width:600px;">
           <label>Google Sheets Web App URL</label>
-          <input type="text" class="form-control" id="gs_url" placeholder="https://script.google.com/macros/s/xxx/exec">
+          <input type="text" class="form-control" id="gs_url" placeholder="https://script.google.com/macros/s/AKfycbzMSeuuuz0ZgnqVQLuXYlp27hi6QZhbLCBOz46nAlyq_12Zjh3k-wxIlnSInmf_grTs1A/exec">
         </div>
         <div style="margin-top:1rem; display:flex; gap:0.7rem; flex-wrap:wrap;">
           <button class="btn btn-primary" onclick="saveGsUrl()">💾 Simpan URL</button>
@@ -1553,7 +1553,7 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 // ============================================================
 // KONFIGURASI — GANTI GS_URL DENGAN URL APPS SCRIPT ANDA
 // ============================================================
-const GS_URL = "https://script.google.com/macros/s/AKfycbyFwebI-MmuoVRo30mOCBUe1ZSSJfKz1aw_0AX4IAqUz-CnhEx-ftLBxDw_9aOnwT6XZw/exec";
+const GS_URL = "https://script.google.com/macros/s/AKfycbzMSeuuuz0ZgnqVQLuXYlp27hi6QZhbLCBOz46nAlyq_12Zjh3k-wxIlnSInmf_grTs1A/exec";
 
 // ============================================================
 // DATA STORE (sinkron dari GSheets)
@@ -1630,10 +1630,15 @@ async function syncAll() {
       if (json.sekolah && Object.keys(json.sekolah).length > 0) DB.sekolah = json.sekolah;
       if (json.guru        && json.guru.length)        DB.guru        = json.guru;
       if (json.kelas       && json.kelas.length)       DB.kelas       = json.kelas;
-      if (json.siswa       && json.siswa.length)       DB.siswa       = json.siswa;
-      if (json.pelanggaran && json.pelanggaran.length) DB.pelanggaran = json.pelanggaran;
-      if (json.penghargaan && json.penghargaan.length) DB.penghargaan = json.penghargaan;
-      if (json.logs        && json.logs.length)        DB.logs        = json.logs;
+      if (json.siswa       && json.siswa.length)       DB.siswa       = json.siswa.map(s => ({...s, nis: String(s.nis||'')}));
+      if (json.pelanggaran && json.pelanggaran.length) DB.pelanggaran = json.pelanggaran.map(p => ({...p, poin: Math.abs(Number(p.poin)||0)}));
+      if (json.penghargaan && json.penghargaan.length) DB.penghargaan = json.penghargaan.map(p => ({...p, poin: Math.abs(Number(p.poin)||0)}));
+      if (json.logs        && json.logs.length)        DB.logs        = json.logs.map(l => ({
+        tgl: l.tgl||'', tipe: l.tipe||'', nis: String(l.nis||''), nama: l.nama||'',
+        kelas: l.kelas||'', desc: l.desc||'', kategori: l.kategori||'',
+        poin: Number(l.poin)||0, guru: l.guru||'', tindakan: l.tindakan||'',
+        keterangan: l.keterangan||'', id: l.id||''
+      }));
       saveLocal();
       gsConnected = true;
       setSyncStatus('ok', 'Terhubung ke Google Sheets ✓');
@@ -1657,30 +1662,20 @@ async function pushToGS(action, payload) {
   if (!url || url.trim() === '') return false;
   try {
     const body = Object.assign({ action: action }, payload);
-    // Kirim data kecil langsung, data besar (array) via POST text/plain
     const bodyStr = JSON.stringify(body);
-    let res;
-    if (bodyStr.length < 1800) {
-      // Query string (untuk operasi ringan seperti addLog)
-      const encoded = encodeURIComponent(bodyStr);
-      res = await fetch(url + '?payload=' + encoded, {
-        method: 'GET',
-        redirect: 'follow'
-      });
-    } else {
-      // POST dengan Content-Type text/plain (tidak trigger CORS preflight)
-      res = await fetch(url, {
-        method: 'POST',
-        redirect: 'follow',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: bodyStr
-      });
-    }
+    // Selalu gunakan POST dengan Content-Type text/plain
+    // agar GAS doPost() membaca e.postData.contents dengan benar
+    const res = await fetch(url, {
+      method: 'POST',
+      redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: bodyStr
+    });
     const text = await res.text();
     try {
       const json = JSON.parse(text);
       return json.status === 'ok';
-    } catch(_) { return true; } // GAS kadang tidak mengembalikan JSON saat no-cors
+    } catch(_) { return true; }
   } catch(e) {
     console.warn('pushToGS error:', e.message);
     return false;
@@ -3377,6 +3372,14 @@ GOOGLE APPS SCRIPT — SALIN KODE INI KE GOOGLE APPS SCRIPT
 
 function doGet(e) {
   const action = e.parameter.action;
+  // Support payload via GET (untuk backward compatibility)
+  if (e.parameter.payload) {
+    try {
+      const body = JSON.parse(decodeURIComponent(e.parameter.payload));
+      const result = handleAction(body);
+      return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+    } catch(ex) {}
+  }
   if (action === 'getAll') return ContentService.createTextOutput(JSON.stringify(getAllData())).setMimeType(ContentService.MimeType.JSON);
   return ContentService.createTextOutput('{}').setMimeType(ContentService.MimeType.JSON);
 }
@@ -3439,7 +3442,13 @@ function appendRow(ss, name, row) {
 }
 
 function flattenLog(log) {
-  return {tgl:log.tgl,tipe:log.tipe,nis:log.nis,nama:log.nama,kelas:log.kelas,desc:log.desc,kategori:log.kategori||'',poin:log.poin,guru:log.guru||'',tindakan:log.tindakan||'',keterangan:log.keterangan||''};
+  return {
+    tgl: log.tgl||'', tipe: log.tipe||'', nis: String(log.nis||''),
+    nama: log.nama||'', kelas: log.kelas||'', desc: log.desc||'',
+    kategori: log.kategori||'', poin: Number(log.poin)||0,
+    guru: log.guru||'', tindakan: log.tindakan||'',
+    keterangan: log.keterangan||'', id: String(log.id||'')
+  };
 }
 
 ================================================================= -->
