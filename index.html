@@ -1357,7 +1357,7 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
         <p style="font-size:0.82rem; color:var(--text3); margin-bottom:1rem;">Hubungkan aplikasi ke Google Sheets sebagai database. Gunakan Google Apps Script sebagai backend API.</p>
         <div class="form-group" style="max-width:600px;">
           <label>Google Sheets Web App URL</label>
-          <input type="text" class="form-control" id="gs_url" placeholder="https://script.google.com/macros/s/AKfycbzMSeuuuz0ZgnqVQLuXYlp27hi6QZhbLCBOz46nAlyq_12Zjh3k-wxIlnSInmf_grTs1A/exec">
+          <input type="text" class="form-control" id="gs_url" placeholder="https://script.google.com/macros/s/AKfycbwK_5QNR60GwYLT19TsAoq90T6qze52i-nIdsAnyNYI0sWJHBCFUdS-Rjyz0ur53yvs-w/exec">
         </div>
         <div style="margin-top:1rem; display:flex; gap:0.7rem; flex-wrap:wrap;">
           <button class="btn btn-primary" onclick="saveGsUrl()">💾 Simpan URL</button>
@@ -1553,7 +1553,7 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 // ============================================================
 // KONFIGURASI — GANTI GS_URL DENGAN URL APPS SCRIPT ANDA
 // ============================================================
-const GS_URL = "https://script.google.com/macros/s/AKfycbzMSeuuuz0ZgnqVQLuXYlp27hi6QZhbLCBOz46nAlyq_12Zjh3k-wxIlnSInmf_grTs1A/exec";
+const GS_URL = "https://script.google.com/macros/s/AKfycbwK_5QNR60GwYLT19TsAoq90T6qze52i-nIdsAnyNYI0sWJHBCFUdS-Rjyz0ur53yvs-w/exec";
 
 // ============================================================
 // DATA STORE (sinkron dari GSheets)
@@ -2460,7 +2460,7 @@ async function submitPelanggaran() {
 
   const s = DB.siswa[siswaIdx];
   const p = DB.pelanggaran[itemIdx];
-  const log = { tgl, tipe: 'Pelanggaran', nis: s.nis, nama: s.nama, kelas: s.kelas, desc: p.indikator||p.text, kategori: p.kategori||'Umum', poin: -Math.abs(Number(p.poin)), guru, tindakan, id: Date.now() };
+  const log = { tgl, tipe: 'Pelanggaran', nis: s.nis, nama: s.nama, kelas: s.kelas, desc: p.indikator||p.text, kategori: p.kategori||'Umum', poin: -Math.abs(Number(p.poin)), guru, tindakan, keterangan: '', id: Date.now() };
   DB.logs.push(log);
   saveLocal();
   showLoading('Menyimpan ke Google Sheets...');
@@ -2482,7 +2482,7 @@ async function submitPenghargaan() {
 
   const s = DB.siswa[siswaIdx];
   const p = DB.penghargaan[itemIdx];
-  const log = { tgl, tipe: 'Penghargaan', nis: s.nis, nama: s.nama, kelas: s.kelas, desc: p.indikator||p.text, kategori: p.kategori||'Umum', poin: Math.abs(Number(p.poin)), guru, keterangan: ket, id: Date.now() };
+  const log = { tgl, tipe: 'Penghargaan', nis: s.nis, nama: s.nama, kelas: s.kelas, desc: p.indikator||p.text, kategori: p.kategori||'Umum', poin: Math.abs(Number(p.poin)), guru, tindakan: '', keterangan: ket, id: Date.now() };
   DB.logs.push(log);
   saveLocal();
   showLoading('Menyimpan ke Google Sheets...');
